@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import LoginForm from '../LoginForm.vue';
+
 </script>
 
 <template>
-  <router-view />
-
+  <LoginForm/>
 </template>
 
 <style scoped>

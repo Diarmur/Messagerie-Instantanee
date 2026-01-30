@@ -1,5 +1,6 @@
 <script setup lang="ts">
 
+import { router } from '@/router';
 import { ref, inject } from 'vue'
 import type { VueCookies } from 'vue-cookies'
 
@@ -22,7 +23,8 @@ const login = () => fetch("https://edu.tardigrade.land/msg/login",{
 .then(data => {
   if ($cookies) {
     $cookies.set('token', data.token)
-    console.log(data)
+    router.push('/messages')
+    console.log($cookies.get('token'))
   }
 })
 .catch(error => console.error('Error:', error))
@@ -31,12 +33,11 @@ const login = () => fetch("https://edu.tardigrade.land/msg/login",{
 
 <template>
   <div>
-  <form @submit.prevent="login">
-    <input type="text" v-model="username" placeholder="Username">
-    <input type="password" v-model="password" placeholder="Password">
-    <button type="submit">Login</button>
-  </form>
-    
+    <form @submit.prevent="login">
+      <input type="text" v-model="username" placeholder="Username">
+      <input type="password" v-model="password" placeholder="Password">
+      <button type="submit">Login</button>    
+    </form>   
   </div>
 </template>
 
