@@ -1,10 +1,13 @@
 <script setup lang="ts">
 
 import { router } from '@/router';
+import { useStore } from '@/stores/store';
 import { ref, inject } from 'vue'
 import type { VueCookies } from 'vue-cookies'
 
-const $cookies = inject<VueCookies>('$cookies');
+const cookies = inject<VueCookies>('$cookies');
+
+const store = useStore();
 
 const username = ref('');
 const password = ref('');
@@ -21,10 +24,12 @@ const login = () => fetch("https://edu.tardigrade.land/msg/login",{
 })
 .then(response => response.json())
 .then(data => {
-  if ($cookies) {
-    $cookies.set('token', data.token)
+  if (cookies && data.token) {
+    cookies.set('token', data.token)
+    store.setToken(data.token)
+    console.log( store.token)
     router.push('/messages')
-    console.log($cookies.get('token'))
+    
   }
 })
 .catch(error => console.error('Error:', error))

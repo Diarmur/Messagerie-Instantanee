@@ -1,10 +1,17 @@
 import { defineStore } from 'pinia'
-import {  inject } from 'vue'
-import type { VueCookies } from 'vue-cookies'
+import {  ref } from 'vue'
 
 export const useStore = defineStore('store', () => {
-    const cookies = inject<VueCookies>('$cookies');
-    const token = cookies?.get('token')
-  
-    return { token }
+
+const token = ref('')
+
+const setToken = (newToken: string) => {
+  token.value = newToken
+}
+
+const clearToken = () => {
+  token.value = ''
+}
+
+  return { token, setToken, clearToken }
 })
