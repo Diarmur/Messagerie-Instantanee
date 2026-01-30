@@ -1,26 +1,27 @@
 <script setup lang="ts">
-import { ref, inject } from 'vue'
-import type { VueCookies } from 'vue-cookies'
+import { useStore } from '@/stores/store';
+import { ref } from 'vue'
 
-const $cookies = inject<VueCookies>('$cookies');
+const store = useStore();
 
 const channels = ["channel 1","channel 2","channel 3","channel 4"]
 
 const name = ref('');
 const img = ref('');
-const token = $cookies?.get('token')
+const channel = ref([])
 
-const getChannel = () => fetch("https://edu.tardigrade.land/msg/protected/channel",{
+const getChannel = () => fetch("https://edu.tardigrade.land/msg/protected/user/channels",{
   method: "GET",
   headers:{
     "Content-Type": "application/json",
-   'Authorization': `Bearer ${token}`,
+   'Authorization': `Bearer ${store.token}`,
   },
 })
 .then(response => response.json())
-.then(data  => {
+.then(data => {
+  channel.value = data
   console.log(data)
-  
+  console.log(store.token)
 })
 .catch(error => console.error('Error:', error))
 
@@ -28,7 +29,7 @@ const createChannel = () => fetch("https://edu.tardigrade.land/msg/protected/cha
   method: "POST",
   headers:{
     "Content-Type": "application/json",
-   'Authorization': `Bearer ${token}`,
+   'Authorization': `Bearer ${store.token}`,
   },
   body: JSON.stringify({
           name: name.value,
@@ -45,6 +46,9 @@ const createChannel = () => fetch("https://edu.tardigrade.land/msg/protected/cha
 <template>
   <div>
     <button @click="getChannel">Charger les channels</button>
+    <li v-for="(c, key) of channel" :key="key" >
+      {{ c }}
+    </li>
   </div>
   
   <div >Liste channels
