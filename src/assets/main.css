@@ -1,5 +1,12 @@
 @import './base.css';
 
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 #app {
   max-width: 1280px;
   margin: 0 auto;
@@ -28,8 +35,12 @@ a,
   }
 
   #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: row;
+    align-self: start;
+    align-items: center;
     padding: 0 2rem;
+    height: 100%;
+    width: 100%;
   }
 }
