@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import MessagePageView from './components/pages/MessagePageView.vue'
 import NotFoundView from './components/pages/NotFoundView.vue'
+import LoginPage from './components/pages/LoginPage.vue'
 
 const routes = [
   {
@@ -18,6 +19,11 @@ const routes = [
     name: 'NotFoundView',
     component: NotFoundView,
   },
+  {
+    path: '/login',
+    name: 'login',
+    component: LoginPage,
+  }
 ]
 
 export const router = createRouter({
