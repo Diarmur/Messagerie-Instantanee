@@ -1,26 +1,21 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
 
-export const useStore = defineStore('store', () => {
-  const token = ref('')
+export const useStore = defineStore('main', {
+  state: () => ({
+    token: null as string | null,
+  }),
 
-  const setToken = (newToken: string) => {
-    token.value = newToken
-    localStorage.setItem('jwt', newToken)
-  }
+  actions: {
+    setToken(token: string) {
+      this.token = token
+    },
 
-  const getToken = () => {
-    const savedToken = localStorage.getItem('jwt')
-    if (savedToken) {
-      token.value = savedToken
-    }
-    return token.value
-  }
+    clearToken() {
+      this.token = null
+    },
+  },
 
-  const clearToken = () => {
-    token.value = ''
-    localStorage.removeItem('jwt')
-  }
-
-  return { token, setToken, clearToken, getToken }
+  getters: {
+    isAuthenticated: (state) => !!state.token,
+  },
 })
