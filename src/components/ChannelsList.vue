@@ -2,29 +2,11 @@
 import { ref, onMounted } from 'vue'
 import { useStore } from '@/stores/store'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import 'vue3-snackbar/styles'
 import NewChannelPopup from './NewChannelPopup.vue'
-
-interface ChannelTheme {
-  primary_color: string
-  primary_color_dark: string
-  accent_color: string
-  accent_text_color: string
-}
-
-interface Channel {
-  id: number
-  name: string
-  image: string | null
-  creator: string
-  theme: ChannelTheme | null
-  users: string[]
-}
-
-interface NewChannel {
-  name: string
-  img: string
-  members: string
-}
+import type { Channel, NewChannel, UpdateChannel, ChannelFormData } from '@/types/interface'
+import { useSnackbar } from 'vue3-snackbar'
+const snackbar = useSnackbar()
 
 const store = useStore()
 
@@ -33,6 +15,8 @@ const isLoading = ref(false)
 const error = ref<string | null>(null)
 const container = ref<HTMLElement | null>(null)
 const showPopup = ref(false)
+const isModification = ref(false)
+const selectedChannel = ref<Channel | undefined>(undefined)
 
 const getChannel = async () => {
   isLoading.value = true
@@ -52,6 +36,7 @@ const getChannel = async () => {
 
     const data = await response.json()
     channels.value = data
+    return channels.value
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Une erreur est survenue'
     console.error('Error:', err)
@@ -60,69 +45,205 @@ const getChannel = async () => {
   }
 }
 
-const createChannel = (newChannel: NewChannel) =>
-  fetch('https://edu.tardigrade.land/msg/protected/channel', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${store.token}`,
-    },
-    body: JSON.stringify({
-      name: newChannel.name,
-      img: newChannel.img,
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => console.log(data))
-    .catch((error) => console.error('Error:', error))
+const createChannel = async (newChannel: NewChannel) => {
+  try {
+    const response = await fetch('https://edu.tardigrade.land/msg/protected/channel', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${store.token}`,
+      },
+      body: JSON.stringify({
+        name: newChannel.name,
+        img: newChannel.img,
+      }),
+    })
 
-// const inviteMember = (newChannel: NewChannel) =>
-//   fetch('https://edu.tardigrade.land/msg/protected/channel', {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//       Authorization: `Bearer ${store.token}`,
-//     },
-//     body: JSON.stringify({
-//       name: newChannel.name,
-//       img: newChannel.img,
-//     }),
-//   })
-//     .then((response) => response.json())
-//     .then((data) => console.log(data))
-//     .catch((error) => console.error('Error:', error))
+    if (!response.ok) {
+      throw new Error('Failed to create channel')
+    }
 
-function getIdCard(channel: Channel) {
-  console.log('ID du channel:', channel.id)
-  console.log('Créateur:', channel.creator)
+    const data = await response.json()
+    if (newChannel.members) addMembers(newChannel.members, data)
+    snackbar.add({
+      type: 'success',
+      text: 'Channel created',
+    })
+
+    return data
+  } catch (error) {
+    throw error
+  }
+}
+
+const updateChannel = async (updatedChannel: UpdateChannel) => {
+  console.log(updatedChannel)
+  try {
+    const response = await fetch(
+      `https://edu.tardigrade.land/msg/protected/channel/${updatedChannel.channelId}/update_metadata`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${store.token}`,
+        },
+        body: JSON.stringify({
+          name: updatedChannel.name,
+          img: updatedChannel.img,
+        }),
+      },
+    )
+
+    if (!response.ok) {
+      throw new Error('Failed to update channel')
+    }
+
+    const data = await response.json()
+    if (updatedChannel.members) addMembers(updatedChannel.members, updatedChannel.channelId)
+    snackbar.add({
+      type: 'success',
+      text: 'Channel updated',
+    })
+    return data
+  } catch (error) {
+    throw error
+  }
+}
+
+const deleteChannel = async () => {
+  try {
+    if (selectedChannel.value?.id == null) {
+      throw new Error('No channel id provided')
+    }
+    const response = await fetch(
+      `https://edu.tardigrade.land/msg/protected/channel/${selectedChannel.value.id}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${store.token}`,
+        },
+      },
+    )
+
+    if (!response.ok) {
+      throw new Error('Failed to delete channel')
+    }
+    snackbar.add({
+      type: 'success',
+      text: 'Channel deleted',
+    })
+
+    await getChannel()
+    showPopup.value = false
+    isModification.value = false
+    selectedChannel.value = undefined
+  } catch (error) {
+    console.error('Error deleting channel:', error)
+    throw error
+  }
 }
 
 function switchSize() {
   container.value?.classList.toggle('big')
 }
 
-function popupCreate() {
+function popupCreate(modification: boolean, channel?: Channel) {
   showPopup.value = !showPopup.value
+  selectedChannel.value = channel
+  isModification.value = modification
 }
 
-const handleClose = (formData: NewChannel) => {
-  console.log('Received data:', formData)
-  createChannel(formData)
-  // if (formData.members) {
-  //   const members = formData.members.split(',')
-  // }
-  getChannel()
-  showPopup.value = false
+const handleClose = async (formData: ChannelFormData) => {
+  try {
+    if (isModification.value && selectedChannel.value) {
+      await updateChannel({
+        channelId: selectedChannel.value.id,
+        name: formData.name,
+        img: formData.img,
+        members: formData.members,
+      })
+    } else {
+      await createChannel({
+        name: formData.name,
+        img: formData.img,
+        members: formData.members || '',
+      })
+    }
+
+    await getChannel()
+
+    showPopup.value = false
+    isModification.value = false
+    selectedChannel.value = undefined
+  } catch (err: unknown) {
+    console.error('Error handling channel operation:', error)
+    error.value = err instanceof Error ? err.message : 'Failed to save channel'
+  }
+}
+
+const addMembers = async (members: string, channelId: number) => {
+  isLoading.value = true
+  const membersList = members.split(',')
+
+  try {
+    const updatePromises = membersList.map(async (user) => {
+      const response = await fetch(
+        `https://edu.tardigrade.land/msg/protected/channel/${channelId}/user/${user}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${store.token}`,
+          },
+        },
+      )
+      const data = await response.json()
+
+      if (!response.ok) {
+        if (response.status == 400) {
+          snackbar.add({
+            type: 'error',
+            text: `Unknown user "${user}"`,
+          })
+        } else {
+          throw new Error(`Failed to add user ${user}`)
+        }
+      }
+
+      return { user, success: true, data }
+    })
+    const results = await Promise.all(updatePromises)
+
+    console.log('All updates completed:', results)
+
+    getChannel()
+    return true
+  } catch (error) {
+    console.error('Error updating items:', error)
+
+    return false
+  } finally {
+    isLoading.value = false
+  }
 }
 
 onMounted(() => {
   getChannel()
+  store.setChannels(channels.value)
 })
 </script>
 
 <template>
   <div class="channel-container" ref="container">
-    <NewChannelPopup v-if="showPopup" @create="handleClose" @close="popupCreate" />
+    <NewChannelPopup
+      v-if="showPopup"
+      :modification="isModification"
+      :channel="selectedChannel"
+      @create="handleClose"
+      @close="popupCreate"
+      @delete="deleteChannel"
+    />
     <div class="title-card">
       <span class="title">List channels</span>
       <font-awesome-icon icon="arrow-right" class="arrow" @click="switchSize" />
@@ -149,51 +270,51 @@ onMounted(() => {
             ? `${channel.theme.primary_color}15`
             : undefined,
         }"
-        @click="getIdCard(channel)"
       >
         <div class="channel-content">
           <div class="channel-icon">
             <img
-              v-if="channel.image"
-              :src="channel.image"
-              :alt="channel.name"
-              class="channel-image"
-            />
-            <span
-              v-else
               class="dot"
-              :style="{
-                backgroundColor: channel.theme?.accent_color || '#7e7b8e',
-              }"
-            ></span>
+              :src="channel.img || 'https://placehold.net/building-400x400.png'"
+              alt="channel.name"
+            />
           </div>
 
           <div class="channel-info">
-            <span
-              class="channel-name"
-              :style="{
-                color: channel.theme?.primary_color_dark || undefined,
-              }"
-            >
-              {{ channel.name }}
-            </span>
-            <div class="channel-meta">
-              <span class="channel-creator">par {{ channel.creator }}</span>
+            <div class="channel-data">
               <span
-                class="user-count"
+                class="channel-name"
                 :style="{
-                  backgroundColor: channel.theme?.accent_color || '#486094',
-                  color: channel.theme?.accent_text_color || 'white',
+                  color: channel.theme?.primary_color_dark || undefined,
                 }"
               >
-                {{ channel.users.length }} 👤
+                {{ channel.name }}
               </span>
+              <div class="channel-meta">
+                <span class="channel-creator">par {{ channel.creator }}</span>
+                <span
+                  class="user-count"
+                  :style="{
+                    backgroundColor: channel.theme?.accent_color || '#486094',
+                    color: channel.theme?.accent_text_color || 'white',
+                  }"
+                >
+                  {{ channel.users.length }} 👤
+                </span>
+              </div>
+            </div>
+            <div
+              class="channel-option"
+              v-if="channel.creator == store.username"
+              v-on:click="popupCreate(true, channel)"
+            >
+              <font-awesome-icon icon="ellipsis-v" />
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="pop-up" v-on:click="popupCreate"><font-awesome-icon icon="plus" /></div>
+    <div class="pop-up" v-on:click="popupCreate(false)"><font-awesome-icon icon="plus" /></div>
   </div>
 </template>
 
@@ -204,18 +325,23 @@ onMounted(() => {
   flex-direction: column;
   width: 16.25rem;
   height: 45rem;
-  border: 5px #6b6cb2 solid;
+  border: 5px var(--color-primary-dark) solid;
   border-radius: 30px;
-  background-color: #a0a9d6;
+  background-color: var(--color-accent);
   overflow: hidden;
-  box-shadow: 20px 30px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 20px 30px 4px #00000033;
   transform-origin: left;
   transition: width 1s ease;
 
   &.big {
     width: 52rem;
 
+    svg.arrow {
+      transform: rotate(-180deg);
+    }
+
     .channel-card {
+      position: relative;
       width: calc(33.333% - 4px);
       padding: 20px 15px;
 
@@ -233,12 +359,23 @@ onMounted(() => {
       }
 
       .dot {
-        width: 50px;
-        height: 50px;
+        width: 65px;
+        height: 65px;
       }
 
       .channel-info {
         align-items: center;
+      }
+
+      .channel-data {
+        justify-content: center;
+        align-items: center;
+      }
+
+      .channel-option {
+        position: absolute;
+        top: 5px;
+        right: 5px;
       }
 
       .channel-name {
@@ -256,7 +393,7 @@ onMounted(() => {
     align-items: center;
     justify-content: space-between;
     height: 8%;
-    background-color: #6b6cb2;
+    background-color: var(--color-primary-dark);
     padding: 0 1rem;
 
     .title {
@@ -294,7 +431,7 @@ onMounted(() => {
     margin: 2px 0;
 
     &:hover {
-      background-color: rgba(34, 51, 87, 0.12) !important;
+      background-color: var(--color-hover-base) !important;
     }
 
     .channel-content {
@@ -313,23 +450,46 @@ onMounted(() => {
       height: 40px;
       border-radius: 50%;
       object-fit: cover;
-      border: 2px solid rgba(255, 255, 255, 0.3);
+      border: 2px solid #ffffff4d;
     }
 
     .channel-info {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
       gap: 4px;
       min-width: 0;
       flex: 1;
     }
 
+    .channel-data {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .channel-option {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 30px;
+      width: 30px;
+      clip-path: circle();
+
+      &:hover {
+        background-color: #64687e54;
+      }
+    }
+
     .channel-name {
+      display: flex;
       font-weight: 600;
       font-size: 0.95rem;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
+      white-space: wrap;
+      max-width: 75%;
     }
 
     .channel-meta {
@@ -341,7 +501,7 @@ onMounted(() => {
 
     .channel-creator {
       font-size: 0.75rem;
-      color: rgba(0, 0, 0, 0.5);
+      color: #00000080;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -385,7 +545,7 @@ onMounted(() => {
 
   .retry-button {
     padding: 8px 16px;
-    background-color: #6b6cb2;
+    background-color: var(--color-primary-dark);
     color: white;
     border: none;
     border-radius: 8px;
@@ -414,7 +574,7 @@ onMounted(() => {
     height: 50px;
     bottom: 10px;
     right: 10px;
-    background-color: #6b6cb2;
+    background-color: var(--color-primary-dark);
     border-radius: 10px;
 
     &:hover {
@@ -431,14 +591,14 @@ onMounted(() => {
   height: 40px;
   width: 40px;
   min-width: 40px;
-  background-color: #7e7b8e;
-  border-radius: 50%;
+  clip-path: circle();
   display: inline-block;
 }
 
 svg.arrow {
   height: 25px;
   min-width: 40px;
+  transition: transform 0.5s;
 }
 
 ::-webkit-scrollbar {

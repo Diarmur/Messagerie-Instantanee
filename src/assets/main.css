@@ -1,5 +1,15 @@
 @import './base.css';
 
+:root {
+  --color-primary: #e91e63;
+  --color-primary-dark: #6b6cb2;
+  --color-accent: #a0a9d6;
+  --color-text: #212121;
+  --color-accent-text: #ffffff;
+  --color-deletion: #e32727;
+  --color-hover-base:#2233571f;
+}
+
 html,
 body {
   height: 100%;
