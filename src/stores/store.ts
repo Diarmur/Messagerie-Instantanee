@@ -1,17 +1,21 @@
 import { defineStore } from 'pinia'
-import {  ref } from 'vue'
 
-export const useStore = defineStore('store', () => {
+export const useStore = defineStore('main', {
+  state: () => ({
+    token: null as string | null,
+  }),
 
-const token = ref('')
+  actions: {
+    setToken(token: string) {
+      this.token = token
+    },
 
-const setToken = (newToken: string) => {
-  token.value = newToken
-}
+    clearToken() {
+      this.token = null
+    },
+  },
 
-const clearToken = () => {
-  token.value = ''
-}
-
-  return { token, setToken, clearToken }
+  getters: {
+    isAuthenticated: (state) => !!state.token,
+  },
 })
