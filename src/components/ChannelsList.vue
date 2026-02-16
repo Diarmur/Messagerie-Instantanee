@@ -11,7 +11,7 @@ interface ChannelTheme {
   accent_text_color: string
 }
 
-interface Channel {
+export interface Channel {
   id: number
   name: string
   image: string | null

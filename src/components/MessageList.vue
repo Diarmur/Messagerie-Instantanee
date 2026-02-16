@@ -20,7 +20,10 @@ interface Message {
 const type = ref('')
 const value = ref('')
 const messages = ref<Message[]>([])
-const loading = ref(false)
+
+// const editType = ref('')
+// const editValue = ref('')
+//const loading = ref(false)
 const error = ref<string | null>(null)
 
 const createMessage = async () => {
@@ -29,12 +32,7 @@ const createMessage = async () => {
     return
   }
 
-  // if (!type.value.trim() || !value.value.trim()) {
-  //   error.value = 'Le type et le contenu sont requis'
-  //   return
-  // }
-
-  loading.value = true
+  //loading.value = true
   error.value = null
 
   try {
@@ -47,8 +45,8 @@ const createMessage = async () => {
           Authorization: `Bearer ${store.token}`,
         },
         body: JSON.stringify({
-          type: type.value.trim(),
-          value: value.value.trim(),
+          type: type.value,
+          value: value.value,
         }),
       },
     )
@@ -67,9 +65,45 @@ const createMessage = async () => {
     error.value = err instanceof Error ? err.message : 'Erreur lors de la création du message'
     console.error('Error:', err)
   } finally {
-    loading.value = false
+    //loading.value = false
   }
 }
+
+// const updateMessage = async () => {
+//  try {
+//     const response = await fetch(
+//       `https://edu.tardigrade.land/msg/protected/channel/${channel_id.value}/message/moderate`,
+//       {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//           'Authorization': `Bearer ${store.token}`,
+//         },
+//         body: JSON.stringify({
+//           channel_id: channel_id.value,
+//           content: {
+//             type: editType.value.trim(),
+//             value: editValue.value.trim(),
+//           },
+//         }),
+//       },
+//     )
+
+//     if (!response.ok) {
+//       throw new Error(`Erreur HTTP: ${response.status}`)
+//     }
+
+//     const data = await response.json()
+//     console.log('Message modifié:', data)
+
+//     await getMessages()
+//   } catch (err) {
+//     error.value = err instanceof Error ? err.message : 'Erreur lors de la modification du message'
+//     console.error('Error:', err)
+//   }
+
+  
+// }
 
 const getMessages = async () => {
   if (!channel_id.value) {
@@ -77,7 +111,7 @@ const getMessages = async () => {
     return
   }
 
-  loading.value = true
+  //loading.value = true
   error.value = null
 
   try {
@@ -103,7 +137,7 @@ const getMessages = async () => {
     error.value = err instanceof Error ? err.message : 'Erreur lors du chargement des messages'
     console.error('Error:', err)
   } finally {
-    loading.value = false
+    //loading.value = false
   }
 }
 
@@ -132,14 +166,24 @@ onMounted(() => {
     <div v-if="!selectedChannel" class="no-channel-selected">
       <span>Sélectionnez un channel pour voir les messages</span>
     </div>
-    
+    <!-- <div v-if="loading" class="loading">
+      <p>Chargement...</p>
+    </div> -->
     <div v-else-if="messages.length > 0" class="messages-list">
       <div v-for="(message, index) of messages" :key="index" class="message-item">
         <div class="message-header">
           <strong class="author">{{ message.author }}</strong>
           <span class="message-type">{{ message.content.type }}</span>
         </div>
-        <div class="message-content">{{ message.content.value }}</div>
+        <div class="message-content">
+          <div v-if="message.content.type === 'Image'">
+            <img :src="message.content.value" alt="Image" class="message-image">
+          </div>
+          <div v-else>
+            {{ message.content.value }}
+          </div>
+          <button type="button">modifier</button>
+        </div>
       </div>
     </div>
 
@@ -156,11 +200,11 @@ onMounted(() => {
         <div class="form-group">
           <select v-model="type" required>
             <option disabled value="">Select Type</option>
-            <option>Text</option>
-            <option>Image</option>           
+            <option value="Text">TEXT</option>
+            <option value="Image">IMAGE</option>           
           </select>
           <p> {{ type }}</p>
-
+                  
           <input
             type="text"
             v-model="value"
@@ -168,7 +212,7 @@ onMounted(() => {
             required
             class="form-input message-input"
           />
-          <button type="submit" class="send-btn" :disabled="loading">Envoyer</button>
+          <button type="submit" class="send-btn">Envoyer</button>
         </div>
       </form>
     </div>
@@ -381,6 +425,14 @@ onMounted(() => {
   color: #555;
   line-height: 1.4;
   word-wrap: break-word;
+}
+
+.message-image {
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: 8px;
+  margin: 0.5rem 0;
+  object-fit: contain;
 }
 
 .empty-state {

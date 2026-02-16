@@ -1,18 +1,5 @@
-import { defineStore } from 'pinia'
-
-interface Channel {
-  id: number
-  name: string
-  image: string | null
-  creator: string
-  theme: {
-    primary_color: string
-    primary_color_dark: string
-    accent_color: string
-    accent_text_color: string
-  } | null
-  users: string[]
-}
+import { defineStore,  } from 'pinia'
+import type { Channel } from '@/components/ChannelsList.vue'
 
 export const useStore = defineStore('main', {
   state: () => ({
