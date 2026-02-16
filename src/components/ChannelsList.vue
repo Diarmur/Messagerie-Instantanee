@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useStore } from '@/stores/store'
-import { useRouter } from 'vue-router'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import NewChannelPopup from './NewChannelPopup.vue'
 
@@ -28,7 +27,6 @@ interface NewChannel {
 }
 
 const store = useStore()
-const router = useRouter()
 
 const channels = ref<Channel[]>([])
 const isLoading = ref(false)
@@ -97,7 +95,7 @@ const createChannel = (newChannel: NewChannel) =>
 function getIdCard(channel: Channel) {
   console.log('ID du channel:', channel.id)
   console.log('Créateur:', channel.creator)
-  router.push(`/messages/${channel.id}`)
+  store.setSelectedChannel(channel)
 }
 
 function switchSize() {

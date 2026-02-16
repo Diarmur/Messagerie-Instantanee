@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { useStore } from '@/stores/store'
-import { useRoute } from 'vue-router'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 
 const store = useStore()
-const route = useRoute()
 
-const channel_id = route.params.channelId
+const channel_id = computed(() => store.selectedChannel?.id)
+const selectedChannel = computed(() => store.selectedChannel)
 const batch_offset = ref(0)
 
 interface Message {
@@ -25,6 +24,11 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 
 const createMessage = async () => {
+  if (!channel_id.value) {
+    error.value = 'Veuillez sélectionner un channel'
+    return
+  }
+
   if (!type.value.trim() || !value.value.trim()) {
     error.value = 'Le type et le contenu sont requis'
     return
@@ -35,7 +39,7 @@ const createMessage = async () => {
 
   try {
     const response = await fetch(
-      `https://edu.tardigrade.land/msg/protected/channel/${channel_id}/message`,
+      `https://edu.tardigrade.land/msg/protected/channel/${channel_id.value}/message`,
       {
         method: 'POST',
         headers: {
@@ -68,12 +72,17 @@ const createMessage = async () => {
 }
 
 const getMessages = async () => {
+  if (!channel_id.value) {
+    messages.value = []
+    return
+  }
+
   loading.value = true
   error.value = null
 
   try {
     const response = await fetch(
-      `https://edu.tardigrade.land/msg/protected/channel/${channel_id}/messages/${batch_offset.value}`,
+      `https://edu.tardigrade.land/msg/protected/channel/${channel_id.value}/messages/${batch_offset.value}`,
       {
         method: 'GET',
         headers: {
@@ -98,16 +107,36 @@ const getMessages = async () => {
   }
 }
 
+watch(channel_id, (newChannelId) => {
+  if (newChannelId) {
+    getMessages()
+  }
+})
+
 onMounted(() => {
-  getMessages()
+  if (channel_id.value) {
+    getMessages()
+  }
 })
 </script>
 
 <template>
   <div class="messages-container">
-    <div v-if="messages.length > 0" class="messages-list">
+    <div v-if="selectedChannel" class="messages-header">
+      <div class="channel-info">
+        <h2 class="channel-name">{{ selectedChannel.name }}</h2>
+        <span class="channel-creator">par {{ selectedChannel.creator }}</span>
+      </div>
+    </div>
+    
+    <div v-if="!selectedChannel" class="no-channel-selected">
+      <p>Aucun message dans ce canal</p>
+      <span>Sélectionnez un channel pour voir les messages</span>
+    </div>
+    
+    <div v-else-if="messages.length > 0" class="messages-list">
       <div v-for="(message, index) of messages" :key="index" class="message-item">
-        <div>
+        <div class="message-header">
           <strong class="author">{{ message.author }}</strong>
           <span class="message-type">{{ message.content.type }}</span>
         </div>
@@ -115,31 +144,35 @@ onMounted(() => {
       </div>
     </div>
 
-    <div v-else class="empty-state">
+    <div v-else-if="selectedChannel" class="empty-state">
       <p>Aucun message dans ce canal</p>
     </div>
-  </div>
-
-  <div class="create-message">
-    <form @submit.prevent="createMessage" class="message-form">
-      <div class="form-group">
-        <input
-          type="text"
-          v-model="type"
-          placeholder="Type (text, image)"
-          required
-          class="form-input"
-        />
-        <input
-          type="text"
-          v-model="value"
-          placeholder="Contenu du message"
-          required
-          class="form-input"
-        />
-        <button type="submit" class="send-btn">Envoyer</button>
+    
+    <div v-if="selectedChannel" class="create-message">
+      <div v-if="error" class="error-message">
+        {{ error }}
       </div>
-    </form>
+      
+      <form @submit.prevent="createMessage" class="message-form">
+        <div class="form-group">
+          <input
+            type="text"
+            v-model="type"
+            placeholder="Type (text, image, etc.)"
+            required
+            class="form-input type-input"
+          />
+          <input
+            type="text"
+            v-model="value"
+            placeholder="Contenu du message"
+            required
+            class="form-input message-input"
+          />
+          <button type="submit" class="send-btn" :disabled="loading">Envoyer</button>
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -147,7 +180,8 @@ onMounted(() => {
 .messages-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100vh;
+  width: 100%;
   border: 2px solid #6b6cb2;
   border-radius: 15px;
   background-color: #f5f5f7;
@@ -157,36 +191,47 @@ onMounted(() => {
 .messages-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
+  padding: 1rem 1.5rem;
   background-color: #6b6cb2;
   color: white;
-  gap: 1rem;
+  border-bottom: 2px solid #5a5ba9;
 }
 
-.nav-btn {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: white;
+.channel-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.channel-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.channel-creator {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.no-channel-selected {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #7e7b8e;
+  font-size: 1.1rem;
+  gap: 0.5rem;
+}
+
+.no-channel-selected p {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.no-channel-selected span {
   font-size: 0.9rem;
-}
-
-.nav-btn:hover {
-  background-color: rgba(255, 255, 255, 0.3);
-}
-
-.error-message {
-  padding: 1rem;
-  background-color: #ffeaea;
-  border: 1px solid #ff6b6b;
-  border-radius: 8px;
-  margin: 1rem;
-  text-align: center;
-}
-
-.retry-btn {
-  background-color: #ff6b6b;
-  color: white;
-  margin-top: 0.5rem;
 }
 
 .messages-list {
@@ -196,6 +241,117 @@ onMounted(() => {
   gap: 0.8rem;
   display: flex;
   flex-direction: column;
+}
+
+.message-item {
+  background: white;
+  border-radius: 8px;
+  padding: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.message-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.author {
+  color: #6b6cb2;
+  font-weight: 600;
+}
+
+.message-type {
+  background-color: #e8e8f7;
+  color: #5a5ba9;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.message-content {
+  color: #333;
+  line-height: 1.4;
+}
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7e7b8e;
+  font-size: 1.1rem;
+}
+
+.create-message {
+  padding: 1rem;
+  background-color: white;
+  border-top: 1px solid #e0e0e0;
+}
+
+.error-message {
+  padding: 0.5rem;
+  background-color: #ffeaea;
+  border: 1px solid #ff6b6b;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #d63031;
+}
+
+.message-form {
+  width: 100%;
+}
+
+.form-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.form-input {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  border-color: #6b6cb2;
+}
+
+.type-input {
+  flex: 0 0 120px;
+}
+
+.message-input {
+  flex: 1;
+}
+
+.send-btn {
+  background-color: #6b6cb2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.send-btn:hover:not(:disabled) {
+  background-color: #5a5ba9;
+}
+
+.send-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .message-item {

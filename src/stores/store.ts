@@ -1,8 +1,23 @@
 import { defineStore } from 'pinia'
 
+interface Channel {
+  id: number
+  name: string
+  image: string | null
+  creator: string
+  theme: {
+    primary_color: string
+    primary_color_dark: string
+    accent_color: string
+    accent_text_color: string
+  } | null
+  users: string[]
+}
+
 export const useStore = defineStore('main', {
   state: () => ({
     token: null as string | null,
+    selectedChannel: null as Channel | null,
   }),
 
   actions: {
@@ -12,6 +27,14 @@ export const useStore = defineStore('main', {
 
     clearToken() {
       this.token = null
+    },
+
+    setSelectedChannel(channel: Channel) {
+      this.selectedChannel = channel
+    },
+
+    clearSelectedChannel() {
+      this.selectedChannel = null
     },
   },
 
