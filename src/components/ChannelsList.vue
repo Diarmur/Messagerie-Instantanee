@@ -10,11 +10,13 @@ const name = ref('');
 const img = ref('');
 const channel = ref([])
 
+//const t = store.getToken()
+
 const getChannel = () => fetch("https://edu.tardigrade.land/msg/protected/user/channels",{
   method: "GET",
   headers:{
     "Content-Type": "application/json",
-   'Authorization': `Bearer ${store.token}`,
+   'Authorization': `Bearer ${store.getToken()}`,
   },
 })
 .then(response => response.json())
@@ -29,7 +31,7 @@ const createChannel = () => fetch("https://edu.tardigrade.land/msg/protected/cha
   method: "POST",
   headers:{
     "Content-Type": "application/json",
-   'Authorization': `Bearer ${store.token}`,
+   'Authorization': `Bearer ${store.getToken()}`,
   },
   body: JSON.stringify({
           name: name.value,
