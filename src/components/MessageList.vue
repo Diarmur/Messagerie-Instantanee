@@ -29,10 +29,10 @@ const createMessage = async () => {
     return
   }
 
-  if (!type.value.trim() || !value.value.trim()) {
-    error.value = 'Le type et le contenu sont requis'
-    return
-  }
+  // if (!type.value.trim() || !value.value.trim()) {
+  //   error.value = 'Le type et le contenu sont requis'
+  //   return
+  // }
 
   loading.value = true
   error.value = null
@@ -130,7 +130,6 @@ onMounted(() => {
     </div>
     
     <div v-if="!selectedChannel" class="no-channel-selected">
-      <p>Aucun message dans ce canal</p>
       <span>Sélectionnez un channel pour voir les messages</span>
     </div>
     
@@ -145,7 +144,7 @@ onMounted(() => {
     </div>
 
     <div v-else-if="selectedChannel" class="empty-state">
-      <p>Aucun message dans ce canal</p>
+      <p>Aucun message dans ce channel</p>
     </div>
     
     <div v-if="selectedChannel" class="create-message">
@@ -155,13 +154,13 @@ onMounted(() => {
       
       <form @submit.prevent="createMessage" class="message-form">
         <div class="form-group">
-          <input
-            type="text"
-            v-model="type"
-            placeholder="Type (text, image, etc.)"
-            required
-            class="form-input type-input"
-          />
+          <select v-model="type" required>
+            <option disabled value="">Select Type</option>
+            <option>Text</option>
+            <option>Image</option>           
+          </select>
+          <p> {{ type }}</p>
+
           <input
             type="text"
             v-model="value"
@@ -364,7 +363,7 @@ onMounted(() => {
 
 
 
-.author {
+.author, p {
   color: #333;
   font-size: 0.95rem;
 }
