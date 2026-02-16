@@ -8,6 +8,7 @@ const routes = [
     path: '/messages',
     name: 'messages',
     component: MessagePageView,
+   
   },
   {
     path: '/404',
