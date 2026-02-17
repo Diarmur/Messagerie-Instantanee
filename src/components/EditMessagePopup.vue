@@ -20,7 +20,7 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <div class="blur">
+  <div class="bg-blur">
     <div class="popup-container">
       <div class="title-card">
         <span class="title">Edit Message</span>
@@ -45,7 +45,7 @@ const handleSubmit = () => {
 </template>
 
 <style scoped>
-.blur {
+.bg-blur {
   position: fixed;
   top: 0;
   left: 0;

@@ -5,7 +5,6 @@ export const useStore = defineStore('main', {
   state: () => ({
     token: null as string | null,
     user: null as User | null,
-    username: null as string | null,
     channels: null as Channel[] |null,
     selectedChannel: null as Channel | null,
   }),
@@ -17,10 +16,6 @@ export const useStore = defineStore('main', {
 
     setUser(userData: User) {
       this.user = userData
-    },
-
-        setUsername(username: string) {
-      this.username = username
     },
 
     setSelectedChannel(channel: Channel) {

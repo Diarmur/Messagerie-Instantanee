@@ -2,7 +2,6 @@
 import ChannelsList from '../ChannelsList.vue'
 import MessageList from '../MessageList.vue'
 
-
 </script>
 
 <template>

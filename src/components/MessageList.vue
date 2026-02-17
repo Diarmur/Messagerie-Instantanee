@@ -196,7 +196,8 @@ onMounted(() => {
         <div class="message-header">
           <strong class="author">{{ message.author }}</strong>
           <span class="message-type">{{ message.content.type }}</span>
-          <div v-show="selectedChannel?.creator === store.username" class="pop-up" v-on:click="popupEdit(message)"><font-awesome-icon icon="pen" class="pen"/>></div>
+          <!-- <span>{{ message.timestamp }}</span> -->
+          <div v-show="selectedChannel?.creator === store.username" class="pop-up" v-on:click="popupEdit(message)"><font-awesome-icon icon="pen" class="pen"/></div>
         </div>
         <div class="message-content">
           <div v-if="message.content.type === 'Image'">

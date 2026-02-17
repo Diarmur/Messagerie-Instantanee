@@ -9,6 +9,7 @@ const store = useStore()
 onMounted(() => {
   const token = cookies?.get('token')
   const username = cookies?.get('username')
+  console.log(username)
 
   if (token && username && !store.user) {
     store.setToken(token)

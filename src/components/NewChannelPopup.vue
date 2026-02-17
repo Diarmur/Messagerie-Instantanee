@@ -44,7 +44,7 @@ function popupCreate(channel: Channel) {
 </script>
 
 <template>
-  <div class="blur">
+  <div class="bg-blur">
     <ValidationPopup
       v-if="showPopup"
       :channel="channel"
@@ -83,7 +83,7 @@ function popupCreate(channel: Channel) {
 </template>
 
 <style scoped>
-.blur {
+.bg-blur {
   position: fixed;
   top: 0;
   left: 0;
