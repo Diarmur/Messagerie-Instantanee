@@ -25,10 +25,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <router-view />
-  <vue3-snackbar bottom right :duration="4000"></vue3-snackbar>
+  <UApp>
+    <router-view />
+    <vue3-snackbar bottom right :duration="4000"></vue3-snackbar>
+  </UApp>
 </template>
 
-<style>
-
-</style>
+<style></style>

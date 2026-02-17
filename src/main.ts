@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { SnackbarService, Vue3Snackbar } from 'vue3-snackbar'
 import 'vue3-snackbar/styles'
+import ui from '@nuxt/ui/vue-plugin'
 import { createApp } from 'vue'
 import App from './App.vue'
 import VueCookies from 'vue-cookies'
@@ -21,6 +22,7 @@ app.use(pinia)
 app.use(router)
 app.use(VueCookies)
 app.use(SnackbarService)
+app.use(ui)
 app.component('vue3-snackbar', Vue3Snackbar)
 
 app.mount('#app')
