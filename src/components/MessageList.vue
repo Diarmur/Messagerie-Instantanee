@@ -9,8 +9,7 @@ const selectedMessage = ref<Message | undefined>(undefined)
 const channel_id = computed(() => store.selectedChannel?.id)
 const selectedChannel = computed(() => store.selectedChannel)
 const batch_offset = ref(0)
-// const editType = ref('')
-// const editValue = ref('')
+
 const showPopup = ref(false)
 
 interface Message {
@@ -148,7 +147,7 @@ const updateMessage = async (formData: FormDataMessage) => {
   }
 }
 
-function popupCreate(message : Message) {
+function popupEdit(message : Message) {
   showPopup.value = !showPopup.value
   selectedMessage.value = message
 
@@ -177,7 +176,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <EditMessagePopup v-if="showPopup" @create="handleClose" @close="popupCreate" />
+  <EditMessagePopup v-if="showPopup" @create="handleClose" @close="popupEdit" />
   <div class="messages-container">
     <div v-if="selectedChannel" class="messages-header">
       <div class="channel-info">
@@ -197,7 +196,7 @@ onMounted(() => {
         <div class="message-header">
           <strong class="author">{{ message.author }}</strong>
           <span class="message-type">{{ message.content.type }}</span>
-          <div class="pop-up" v-on:click="popupCreate(message)"><font-awesome-icon icon="pen" class="pen"/></div>
+          <div v-show="selectedChannel?.creator === store.username" class="pop-up" v-on:click="popupEdit(message)"><font-awesome-icon icon="pen" class="pen"/>></div>
         </div>
         <div class="message-content">
           <div v-if="message.content.type === 'Image'">
@@ -205,9 +204,7 @@ onMounted(() => {
           </div>
           <div v-else>
             {{ message.content.value }}
-          </div>
-          <!-- <button type="button">modifier</button> -->
-              
+          </div>             
 
         </div>
       </div>

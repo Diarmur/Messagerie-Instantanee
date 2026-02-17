@@ -34,9 +34,7 @@ const handleSubmit = () => {
             <option disabled value="">Select Type</option>
             <option value="Text">TEXT</option>
             <option value="Image">IMAGE</option>           
-          </select>
-          <!-- <p> {{ type }}</p> -->
-          
+          </select>          
           <p>Message Value: <input type="text" required v-model="formData.editValue"/></p>
 
           <button type="submit">Edit</button>
@@ -45,6 +43,7 @@ const handleSubmit = () => {
     </div>
   </div>
 </template>
+
 <style scoped>
 .blur {
   position: fixed;

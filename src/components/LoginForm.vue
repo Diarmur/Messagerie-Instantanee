@@ -28,6 +28,7 @@ const login = () => fetch("https://edu.tardigrade.land/msg/login",{
     cookies.set('token', data.token)
     localStorage.setItem('jwt', data.token)
     store.setToken(data.token)
+    store.setUsername(username.value)
     console.log(store.token)
     router.push('/messages')
   }

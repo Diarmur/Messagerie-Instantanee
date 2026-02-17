@@ -10,7 +10,6 @@ const routes = [
     name: 'messages',
     component: MessagePageView,
     meta: { requiresAuth: true }
-
    
   },
   {
