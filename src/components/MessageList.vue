@@ -1,15 +1,21 @@
 <script setup lang="ts">
 import { useStore } from '@/stores/store'
 import { ref, onMounted, watch, computed } from 'vue'
+import EditMessagePopup from './EditMessagePopup.vue'
+import type { FormDataMessage } from './EditMessagePopup.vue'
 
 const store = useStore()
-
+const selectedMessage = ref<Message | undefined>(undefined)
 const channel_id = computed(() => store.selectedChannel?.id)
 const selectedChannel = computed(() => store.selectedChannel)
 const batch_offset = ref(0)
+// const editType = ref('')
+// const editValue = ref('')
+const showPopup = ref(false)
 
 interface Message {
   channel_id: number
+  timestamp: number
   author: string
   content: {
     type: string
@@ -21,9 +27,8 @@ const type = ref('')
 const value = ref('')
 const messages = ref<Message[]>([])
 
-// const editType = ref('')
-// const editValue = ref('')
-//const loading = ref(false)
+
+const loading = ref(false)
 const error = ref<string | null>(null)
 
 const createMessage = async () => {
@@ -32,7 +37,7 @@ const createMessage = async () => {
     return
   }
 
-  //loading.value = true
+  loading.value = true
   error.value = null
 
   try {
@@ -65,45 +70,10 @@ const createMessage = async () => {
     error.value = err instanceof Error ? err.message : 'Erreur lors de la création du message'
     console.error('Error:', err)
   } finally {
-    //loading.value = false
+    loading.value = false
   }
 }
 
-// const updateMessage = async () => {
-//  try {
-//     const response = await fetch(
-//       `https://edu.tardigrade.land/msg/protected/channel/${channel_id.value}/message/moderate`,
-//       {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           'Authorization': `Bearer ${store.token}`,
-//         },
-//         body: JSON.stringify({
-//           channel_id: channel_id.value,
-//           content: {
-//             type: editType.value.trim(),
-//             value: editValue.value.trim(),
-//           },
-//         }),
-//       },
-//     )
-
-//     if (!response.ok) {
-//       throw new Error(`Erreur HTTP: ${response.status}`)
-//     }
-
-//     const data = await response.json()
-//     console.log('Message modifié:', data)
-
-//     await getMessages()
-//   } catch (err) {
-//     error.value = err instanceof Error ? err.message : 'Erreur lors de la modification du message'
-//     console.error('Error:', err)
-//   }
-
-  
-// }
 
 const getMessages = async () => {
   if (!channel_id.value) {
@@ -111,7 +81,7 @@ const getMessages = async () => {
     return
   }
 
-  //loading.value = true
+  loading.value = true
   error.value = null
 
   try {
@@ -137,8 +107,60 @@ const getMessages = async () => {
     error.value = err instanceof Error ? err.message : 'Erreur lors du chargement des messages'
     console.error('Error:', err)
   } finally {
-    //loading.value = false
+    loading.value = false
   }
+}
+
+const updateMessage = async (formData: FormDataMessage) => {
+ try {
+  console.log(formData)
+    const response = await fetch(
+      `https://edu.tardigrade.land/msg/protected/channel/${channel_id.value}/message/moderate`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${store.token}`,
+        },
+        body: JSON.stringify({
+          channel_id: channel_id.value,
+          timestamp: selectedMessage.value?.timestamp,
+          author: selectedMessage.value?.author,
+          content: {
+            type: formData.editType,
+            value: formData.editValue,
+          },
+        }),
+      },
+    )
+
+    if (!response.ok) {
+      throw new Error(`Erreur HTTP: ${response.status}`)
+    }
+
+    const data = await response.json()
+    console.log('Message modifié:', data)
+
+    await getMessages()
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Erreur lors de la modification du message'
+    console.error('Error:', err)
+  }
+}
+
+function popupCreate(message : Message) {
+  showPopup.value = !showPopup.value
+  selectedMessage.value = message
+
+
+}
+
+const handleClose = (formData: FormDataMessage) => {
+  console.log('Received data:', formData)
+  updateMessage(formData)
+  
+  getMessages()
+  showPopup.value = false
 }
 
 watch(channel_id, (newChannelId) => {
@@ -155,6 +177,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <EditMessagePopup v-if="showPopup" @create="handleClose" @close="popupCreate" />
   <div class="messages-container">
     <div v-if="selectedChannel" class="messages-header">
       <div class="channel-info">
@@ -166,14 +189,15 @@ onMounted(() => {
     <div v-if="!selectedChannel" class="no-channel-selected">
       <span>Sélectionnez un channel pour voir les messages</span>
     </div>
-    <!-- <div v-if="loading" class="loading">
+    <div v-if="loading" class="loading">
       <p>Chargement...</p>
-    </div> -->
+    </div>
     <div v-else-if="messages.length > 0" class="messages-list">
       <div v-for="(message, index) of messages" :key="index" class="message-item">
         <div class="message-header">
           <strong class="author">{{ message.author }}</strong>
           <span class="message-type">{{ message.content.type }}</span>
+          <div class="pop-up" v-on:click="popupCreate(message)"><font-awesome-icon icon="pen" class="pen"/></div>
         </div>
         <div class="message-content">
           <div v-if="message.content.type === 'Image'">
@@ -182,7 +206,9 @@ onMounted(() => {
           <div v-else>
             {{ message.content.value }}
           </div>
-          <button type="button">modifier</button>
+          <!-- <button type="button">modifier</button> -->
+              
+
         </div>
       </div>
     </div>
@@ -231,6 +257,9 @@ onMounted(() => {
   overflow: hidden;
 }
 
+.pen{
+  color: black;
+}
 .messages-header {
   display: flex;
   align-items: center;
