@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useStore } from '@/stores/store'
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch, computed, onBeforeUnmount } from 'vue'
 import EditMessagePopup from './EditMessagePopup.vue'
 import type { FormDataMessage } from './EditMessagePopup.vue'
+import type { Message } from '@/types/interface'
 
 const store = useStore()
 const selectedMessage = ref<Message | undefined>(undefined)
@@ -10,25 +11,60 @@ const channel_id = computed(() => store.selectedChannel?.id)
 const selectedChannel = computed(() => store.selectedChannel)
 const batch_offset = ref(0)
 
+const wsConnectionEstablished = ref(false)
+let ws: WebSocket | null = null
+
 const showPopup = ref(false)
 
-interface Message {
-  channel_id: number
-  timestamp: number
-  author: string
-  content: {
-    type: string
-    value: string
-  }
-}
-
-const type = ref('')
+const type = ref('Text')
 const value = ref('')
 const messages = ref<Message[]>([])
 
-
 const loading = ref(false)
 const error = ref<string | null>(null)
+
+const connectWebSocket = () => {
+  if (!channel_id.value || !store.token) {
+    return
+  }
+
+  closeWebSocket()
+
+  ws = new WebSocket(`wss://edu.tardigrade.land/msg/ws/channel/${channel_id.value}/token/${store.token}`);
+
+  ws.onopen = () => {
+    console.log('WebSocket connecté')
+    wsConnectionEstablished.value = true
+  }
+
+  ws.onmessage = (e) => {
+    try {
+      const newMessage: Message = JSON.parse(e.data)
+      console.log('Nouveau message reçu:', newMessage)
+      messages.value.push(newMessage)
+    } catch (err) {
+      console.error('Erreur lors du parsing du message WebSocket:', err)
+    }
+  }
+
+  ws.onerror = (error) => {
+    console.error('Erreur WebSocket:', error)
+    wsConnectionEstablished.value = false
+  }
+
+  ws.onclose = () => {
+    console.log('WebSocket déconnecté')
+    wsConnectionEstablished.value = false
+  }
+}
+
+const closeWebSocket = () => {
+  if (ws) {
+    ws.close()
+    ws = null
+    wsConnectionEstablished.value = false
+  }
+}
 
 const createMessage = async () => {
   if (!channel_id.value) {
@@ -64,7 +100,7 @@ const createMessage = async () => {
 
     type.value = ''
     value.value = ''
-    await getMessages()
+    //getMessages()
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Erreur lors de la création du message'
     console.error('Error:', err)
@@ -72,7 +108,6 @@ const createMessage = async () => {
     loading.value = false
   }
 }
-
 
 const getMessages = async () => {
   if (!channel_id.value) {
@@ -165,13 +200,22 @@ const handleClose = (formData: FormDataMessage) => {
 watch(channel_id, (newChannelId) => {
   if (newChannelId) {
     getMessages()
+    connectWebSocket()
+  } else {
+    closeWebSocket()
+    messages.value = []
   }
 })
 
 onMounted(() => {
   if (channel_id.value) {
     getMessages()
+    connectWebSocket()
   }
+})
+
+onBeforeUnmount(() => {
+  closeWebSocket()
 })
 </script>
 
@@ -223,7 +267,6 @@ onMounted(() => {
       <form @submit.prevent="createMessage" class="message-form">
         <div class="form-group">
           <select v-model="type" required>
-            <option disabled value="">Select Type</option>
             <option value="Text">TEXT</option>
             <option value="Image">IMAGE</option>           
           </select>

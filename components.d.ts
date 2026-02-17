@@ -12,8 +12,8 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     ChannelsList: typeof import('./src/components/ChannelsList.vue')['default']
-    EditMessagePopup: typeof import('./src/components/EditMessagePopup.vue')['default']
     ColorPickerComponent: typeof import('./src/components/ColorPickerComponent.vue')['default']
+    EditMessagePopup: typeof import('./src/components/EditMessagePopup.vue')['default']
     IconCommunity: typeof import('./src/components/icons/IconCommunity.vue')['default']
     IconDocumentation: typeof import('./src/components/icons/IconDocumentation.vue')['default']
     IconEcosystem: typeof import('./src/components/icons/IconEcosystem.vue')['default']

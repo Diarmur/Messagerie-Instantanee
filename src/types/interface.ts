@@ -44,3 +44,13 @@ export interface ChannelFormData {
   text_color: string 
   accent_text_color: string
 }
+
+export interface Message {
+  channel_id: number
+  timestamp: number
+  author: string
+  content: {
+    type: string
+    value: string
+  }
+}
