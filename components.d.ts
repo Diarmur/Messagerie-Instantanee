@@ -21,6 +21,7 @@ declare module 'vue' {
     IconTooling: typeof import('./src/components/icons/IconTooling.vue')['default']
     LoginForm: typeof import('./src/components/LoginForm.vue')['default']
     LoginPage: typeof import('./src/components/pages/LoginPage.vue')['default']
+    MembersList: typeof import('./src/components/MembersList.vue')['default']
     MessageList: typeof import('./src/components/MessageList.vue')['default']
     MessagePageView: typeof import('./src/components/pages/MessagePageView.vue')['default']
     NewChannelPopup: typeof import('./src/components/NewChannelPopup.vue')['default']

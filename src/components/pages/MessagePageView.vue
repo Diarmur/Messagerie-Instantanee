@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ChannelsList from '../ChannelsList.vue'
+import MembersList from '../MembersList.vue';
 import MessageList from '../MessageList.vue'
 
 </script>
@@ -8,6 +9,7 @@ import MessageList from '../MessageList.vue'
   <div class="container">
     <ChannelsList />
     <MessageList />
+    <MembersList />
   </div>
 </template>
 
@@ -15,7 +17,7 @@ import MessageList from '../MessageList.vue'
 .container {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   height: 100vh;
   width: 100%;
   gap: 1rem;

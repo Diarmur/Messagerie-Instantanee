@@ -1,6 +1,8 @@
 export interface User {
-  id: number
   username: string
+  display_name?: string
+  img?: string
+  status?: string
 }
 
 export interface ChannelTheme {
@@ -26,7 +28,7 @@ export interface NewChannel {
   members?: string
 }
 
-export interface UpdateChannel{
+export interface UpdateChannel {
   channelId: number
   name?: string
   img?: string
@@ -41,6 +43,15 @@ export interface ChannelFormData {
   primary_color: string
   primary_color_dark: string
   accent_color: string
-  text_color: string 
+  text_color: string
   accent_text_color: string
+}
+export interface Message {
+  channel_id: number
+  timestamp: number
+  author: string
+  content: {
+    type: string
+    value: string
+  }
 }

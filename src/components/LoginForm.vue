@@ -1,46 +1,56 @@
 <script setup lang="ts">
-
-import { router } from '@/router';
-import { useStore } from '@/stores/store';
+import { router } from '@/router'
+import { useStore } from '@/stores/store'
 import { ref, inject } from 'vue'
 import type { VueCookies } from 'vue-cookies'
 
-const cookies = inject<VueCookies>('$cookies');
+const cookies = inject<VueCookies>('$cookies')
 
-const store = useStore();
+const store = useStore()
 
-const username = ref('');
-const password = ref('');
+const username = ref('')
+const password = ref('')
 
-const login = () => fetch("https://edu.tardigrade.land/msg/login",{
-  method: "POST",
-  headers:{
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-          username: username.value,
-          password: password.value,
-        }),
-})
-.then(response => response.json())
-.then(data => {
-  if (cookies && data.token) {
-    cookies.set('token', data.token)
-    cookies.set('username', username.value)
-    localStorage.setItem('jwt', data.token)
-    store.setToken(data.token)
-    store.setUser({
-      id: 0,
-      username: username.value
+const login = () =>
+  fetch('https://edu.tardigrade.land/msg/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      username: username.value,
+      password: password.value,
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (cookies && data.token) {
+        cookies.set('token', data.token)
+        cookies.set('username', username.value)
+        localStorage.setItem('jwt', data.token)
+        store.setToken(data.token)
+        GetConnectedUser()
+        console.log(store.token)
+        router.push('/messages')
+      }
     })
-    console.log(store.token)
-    router.push('/messages')
+    .catch((error) => console.error('Error:', error))
+
+const GetConnectedUser = async () => {
+  try {
+    const response = await fetch('https://edu.tardigrade.land/msg/users/me', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${store.token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    const data = await response.json()
+    store.setUser(data)
+  } catch (error) {
+    console.error('Error fetching user:', error)
   }
-
-  
-})
-.catch(error => console.error('Error:', error))
-
+}
 </script>
 
 <template>
@@ -48,13 +58,12 @@ const login = () => fetch("https://edu.tardigrade.land/msg/login",{
     <form @submit.prevent="login">
       <div class="login-container">
         <h2 class="login-title">Login</h2>
-        
-        <input type="text" v-model="username" placeholder="Username" class="login-input">
-        <input type="password" v-model="password" placeholder="Password" class="login-input">
+
+        <input type="text" v-model="username" placeholder="Username" class="login-input" />
+        <input type="password" v-model="password" placeholder="Password" class="login-input" />
         <button type="submit" class="login-button">Login</button>
-        
-      </div>    
-    </form>   
+      </div>
+    </form>
   </div>
 </template>
 

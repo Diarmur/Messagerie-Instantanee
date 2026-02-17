@@ -3,29 +3,18 @@ import { useStore } from '@/stores/store'
 import { ref, onMounted, watch, computed } from 'vue'
 import EditMessagePopup from './EditMessagePopup.vue'
 import type { FormDataMessage } from './EditMessagePopup.vue'
+import type { Message } from '@/types/interface'
 
 const store = useStore()
 const selectedMessage = ref<Message | undefined>(undefined)
 const channel_id = computed(() => store.selectedChannel?.id)
 const selectedChannel = computed(() => store.selectedChannel)
 const batch_offset = ref(0)
-
 const showPopup = ref(false)
-
-interface Message {
-  channel_id: number
-  timestamp: number
-  author: string
-  content: {
-    type: string
-    value: string
-  }
-}
 
 const type = ref('')
 const value = ref('')
 const messages = ref<Message[]>([])
-
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -59,8 +48,7 @@ const createMessage = async () => {
       throw new Error(`Erreur HTTP: ${response.status}`)
     }
 
-    const data = await response.json()
-    console.log('Message créé:', data)
+    await response.json()
 
     type.value = ''
     value.value = ''
@@ -72,7 +60,6 @@ const createMessage = async () => {
     loading.value = false
   }
 }
-
 
 const getMessages = async () => {
   if (!channel_id.value) {
@@ -101,7 +88,6 @@ const getMessages = async () => {
 
     const data = await response.json()
     messages.value = data
-    console.log('Messages chargés:', data)
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Erreur lors du chargement des messages'
     console.error('Error:', err)
@@ -111,15 +97,14 @@ const getMessages = async () => {
 }
 
 const updateMessage = async (formData: FormDataMessage) => {
- try {
-  console.log(formData)
+  try {
     const response = await fetch(
       `https://edu.tardigrade.land/msg/protected/channel/${channel_id.value}/message/moderate`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${store.token}`,
+          Authorization: `Bearer ${store.token}`,
         },
         body: JSON.stringify({
           channel_id: channel_id.value,
@@ -137,8 +122,7 @@ const updateMessage = async (formData: FormDataMessage) => {
       throw new Error(`Erreur HTTP: ${response.status}`)
     }
 
-    const data = await response.json()
-    console.log('Message modifié:', data)
+    await response.json()
 
     await getMessages()
   } catch (err) {
@@ -147,17 +131,14 @@ const updateMessage = async (formData: FormDataMessage) => {
   }
 }
 
-function popupEdit(message : Message) {
+function popupEdit(message: Message) {
   showPopup.value = !showPopup.value
   selectedMessage.value = message
-
-
 }
 
 const handleClose = (formData: FormDataMessage) => {
-  console.log('Received data:', formData)
   updateMessage(formData)
-  
+
   getMessages()
   showPopup.value = false
 }
@@ -168,7 +149,7 @@ watch(channel_id, (newChannelId) => {
   }
 })
 
-onMounted(() => {
+onMounted(async () => {
   if (channel_id.value) {
     getMessages()
   }
@@ -184,12 +165,12 @@ onMounted(() => {
         <span class="channel-creator">par {{ selectedChannel.creator }}</span>
       </div>
     </div>
-    
+
     <div v-if="!selectedChannel" class="no-channel-selected">
-      <span>Sélectionnez un channel pour voir les messages</span>
+      <span>Select a channel to see message</span>
     </div>
     <div v-if="loading" class="loading">
-      <p>Chargement...</p>
+      <p>Loading...</p>
     </div>
     <div v-else-if="messages.length > 0" class="messages-list">
       <div v-for="(message, index) of messages" :key="index" class="message-item">
@@ -197,38 +178,43 @@ onMounted(() => {
           <strong class="author">{{ message.author }}</strong>
           <span class="message-type">{{ message.content.type }}</span>
           <!-- <span>{{ message.timestamp }}</span> -->
-          <div v-show="selectedChannel?.creator === store.username" class="pop-up" v-on:click="popupEdit(message)"><font-awesome-icon icon="pen" class="pen"/></div>
+          <div
+            v-show="selectedChannel?.creator === store.username"
+            class="pop-up"
+            v-on:click="popupEdit(message)"
+          >
+            <font-awesome-icon icon="pen" class="pen" />
+          </div>
         </div>
         <div class="message-content">
           <div v-if="message.content.type === 'Image'">
-            <img :src="message.content.value" alt="Image" class="message-image">
+            <img :src="message.content.value" alt="Image" class="message-image" />
           </div>
           <div v-else>
             {{ message.content.value }}
-          </div>             
-
+          </div>
         </div>
       </div>
     </div>
 
     <div v-else-if="selectedChannel" class="empty-state">
-      <p>Aucun message dans ce channel</p>
+      <p>No message in this channel</p>
     </div>
-    
+
     <div v-if="selectedChannel" class="create-message">
       <div v-if="error" class="error-message">
         {{ error }}
       </div>
-      
+
       <form @submit.prevent="createMessage" class="message-form">
         <div class="form-group">
           <select v-model="type" required>
             <option disabled value="">Select Type</option>
             <option value="Text">TEXT</option>
-            <option value="Image">IMAGE</option>           
+            <option value="Image">IMAGE</option>
           </select>
-          <p> {{ type }}</p>
-                  
+          <p>{{ type }}</p>
+
           <input
             type="text"
             v-model="value"
@@ -247,15 +233,16 @@ onMounted(() => {
 .messages-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 95vh;
   width: 100%;
-  border: 2px solid #6b6cb2;
+  border: 3px solid #6b6cb2;
   border-radius: 15px;
   background-color: #f5f5f7;
   overflow: hidden;
+  box-shadow: 10px 15px 4px #00000033;
 }
 
-.pen{
+.pen {
   color: black;
 }
 .messages-header {
@@ -432,9 +419,8 @@ onMounted(() => {
   border-left: 4px solid #6b6cb2;
 }
 
-
-
-.author, p {
+.author,
+p {
   color: #333;
   font-size: 0.95rem;
 }

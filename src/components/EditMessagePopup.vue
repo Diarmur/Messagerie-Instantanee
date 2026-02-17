@@ -10,7 +10,6 @@ export interface FormDataMessage {
 const formData = reactive<FormDataMessage>({editType : '', editValue : ''})
 
 const handleSubmit = () => {
-  console.log(formData)
 
   emit('create', formData)
 
@@ -33,8 +32,8 @@ const handleSubmit = () => {
           <select v-model="formData.editType" required>
             <option disabled value="">Select Type</option>
             <option value="Text">TEXT</option>
-            <option value="Image">IMAGE</option>           
-          </select>          
+            <option value="Image">IMAGE</option>
+          </select>
           <p>Message Value: <input type="text" required v-model="formData.editValue"/></p>
 
           <button type="submit">Edit</button>

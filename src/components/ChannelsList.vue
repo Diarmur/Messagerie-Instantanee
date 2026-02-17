@@ -24,7 +24,12 @@ const showPopup = ref(false)
 const isModification = ref(false)
 const selectedChannel = ref<Channel | undefined>(undefined)
 
-const getChannel = async () => {
+onMounted(() => {
+  getChannels()
+  store.setChannels(channels.value)
+})
+
+const getChannels = async () => {
   isLoading.value = true
   error.value = null
   try {
@@ -52,8 +57,6 @@ const getChannel = async () => {
 }
 
 function getIdCard(channel: Channel) {
-  console.log('ID du channel:', channel.id)
-  console.log('Créateur:', channel.creator)
   store.setSelectedChannel(channel)
 }
 
@@ -88,7 +91,6 @@ const createChannel = async (newChannel: NewChannel) => {
 }
 
 const updateChannel = async (updatedChannel: UpdateChannel) => {
-  console.log(updatedChannel)
   try {
     const response = await fetch(
       `https://edu.tardigrade.land/msg/protected/channel/${updatedChannel.channelId}/update_metadata`,
@@ -146,7 +148,7 @@ const deleteChannel = async () => {
       text: 'Channel deleted',
     })
 
-    await getChannel()
+    await getChannels()
     showPopup.value = false
     isModification.value = false
     selectedChannel.value = undefined
@@ -185,7 +187,7 @@ const handleClose = async (formData: ChannelFormData) => {
       })
     }
 
-    await getChannel()
+    await getChannels()
 
     showPopup.value = false
     isModification.value = false
@@ -227,11 +229,9 @@ const addMembers = async (members: string, channelId: number) => {
 
       return { user, success: true, data }
     })
-    const results = await Promise.all(updatePromises)
+    await Promise.all(updatePromises)
 
-    console.log('All updates completed:', results)
-
-    getChannel()
+    getChannels()
     return true
   } catch (error) {
     console.error('Error updating items:', error)
@@ -251,11 +251,6 @@ const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
     accent_text_color: formData.accent_text_color,
   }
 }
-
-onMounted(() => {
-  getChannel()
-  store.setChannels(channels.value)
-})
 </script>
 
 <template>
@@ -268,7 +263,7 @@ onMounted(() => {
       @close="popupCreate"
       @delete="deleteChannel"
     />
-    <div class="title-card">
+    <div class="messages-header title-channel">
       <span class="title">List channels</span>
       <font-awesome-icon icon="arrow-right" class="arrow" @click="switchSize" />
     </div>
@@ -276,12 +271,12 @@ onMounted(() => {
     <div class="channel-list">
       <div v-if="error" class="error-message">
         <p>{{ error }}</p>
-        <button @click="getChannel" class="retry-button">Retry</button>
+        <button @click="getChannels" class="retry-button">Retry</button>
       </div>
 
       <div v-else-if="channels.length === 0" class="empty-message">
         <p>No channel available</p>
-        <button @click="getChannel" class="retry-button">reload</button>
+        <button @click="getChannels" class="retry-button">reload</button>
       </div>
 
       <div
@@ -289,11 +284,7 @@ onMounted(() => {
         v-for="channel in channels"
         :key="channel.id"
         class="channel-card"
-        :style="{
-          backgroundColor: channel.theme?.primary_color
-            ? `${channel.theme.primary_color}15`
-            : undefined,
-        }"
+
         @click="getIdCard(channel)"
       >
         <div class="channel-content">
@@ -309,9 +300,7 @@ onMounted(() => {
             <div class="channel-data">
               <span
                 class="channel-name"
-                :style="{
-                  color: channel.theme?.primary_color_dark || undefined,
-                }"
+
               >
                 {{ channel.name }}
               </span>
@@ -319,10 +308,7 @@ onMounted(() => {
                 <span class="channel-creator">par {{ channel.creator }}</span>
                 <span
                   class="user-count"
-                  :style="{
-                    backgroundColor: channel.theme?.accent_color || '#486094',
-                    color: channel.theme?.accent_text_color || 'white',
-                  }"
+
                 >
                   {{ channel.users.length }} 👤
                 </span>
@@ -348,13 +334,13 @@ onMounted(() => {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: 16.25rem;
-  height: 45rem;
-  border: 5px var(--color-primary-dark) solid;
-  border-radius: 30px;
+  width: 25rem;
+  height: 90vh;
+  border: 3px var(--color-primary-dark) solid;
+  border-radius: 15px;
   background-color: var(--color-accent);
   overflow: hidden;
-  box-shadow: 20px 30px 4px #00000033;
+  box-shadow: 10px 15px 4px #00000033;
   transform-origin: left;
   transition: width 1s ease;
 
@@ -413,27 +399,27 @@ onMounted(() => {
     }
   }
 
-  .title-card {
+  .messages-header {
     display: flex;
     align-items: center;
+    padding: 1rem 1.5rem;
+    background-color: #6b6cb2;
+    color: white;
+    border-bottom: 2px solid #5a5ba9;
+  }
+
+  .title-channel {
     justify-content: space-between;
-    height: 8%;
-    background-color: var(--color-primary-dark);
-    padding: 0 1rem;
 
     .title {
       font-size: large;
       font-weight: 700;
     }
 
-    .dot {
-      cursor: pointer;
-      transition: transform 0.2s ease;
-
-      &:hover {
-        transform: scale(1.1);
-        background-color: #908fa3;
-      }
+    svg.arrow {
+      height: 25px;
+      min-width: 40px;
+      transition: transform 0.5s;
     }
   }
 
@@ -618,28 +604,5 @@ onMounted(() => {
   min-width: 40px;
   clip-path: circle();
   display: inline-block;
-}
-
-svg.arrow {
-  height: 25px;
-  min-width: 40px;
-  transition: transform 0.5s;
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #486094;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #354669;
 }
 </style>
