@@ -8,20 +8,27 @@ const store = useStore()
 
 onMounted(() => {
   const token = cookies?.get('token')
+  const username = cookies?.get('username')
+
+  if (token && username && !store.user) {
+    store.setToken(token)
+    store.setUser({
+      id: 0,
+      username: username,
+    })
+  }
+
   if (token) {
     store.setToken(token)
-    console.log('Token loaded from cookie:', token)
-  } else {
-    console.log('No token found in cookies')
   }
 })
 </script>
 
 <template>
-  <router-view />
-
+  <UApp>
+    <router-view />
+    <vue3-snackbar bottom right :duration="4000"></vue3-snackbar>
+  </UApp>
 </template>
 
-<style scoped>
-
-</style>
+<style></style>

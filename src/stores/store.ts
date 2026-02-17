@@ -1,11 +1,13 @@
 import { defineStore,  } from 'pinia'
-import type { Channel } from '@/components/ChannelsList.vue'
+import type { Channel, User } from '@/types/interface'
 
 export const useStore = defineStore('main', {
   state: () => ({
     token: null as string | null,
-    selectedChannel: null as Channel | null,
+    user: null as User | null,
     username: null as string | null,
+    channels: null as Channel[] |null,
+    selectedChannel: null as Channel | null,
   }),
 
   actions: {
@@ -13,28 +15,40 @@ export const useStore = defineStore('main', {
       this.token = token
     },
 
-    clearToken() {
-      this.token = null
+    setUser(userData: User) {
+      this.user = userData
+    },
+
+        setUsername(username: string) {
+      this.username = username
     },
 
     setSelectedChannel(channel: Channel) {
       this.selectedChannel = channel
     },
 
-    clearSelectedChannel() {
-      this.selectedChannel = null
+    setChannels(channels: Channel[]){
+      this.channels = channels
     },
 
-    setUsername(username: string) {
-      this.username = username
+    clearToken() {
+      this.token = null
     },
 
-    clearUsername() {
-      this.username = null
+    clearAuth() {
+      this.token = null
+      this.user = null
     },
+
+    clearChannels(){
+      this.channels = null
+    }
   },
 
   getters: {
     isAuthenticated: (state) => !!state.token,
+    currentUser: (state) => state.user,
+    username: (state) => state.user?.username || null,
+    userId: (state) => state.user?.id || null,
   },
 })
