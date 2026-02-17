@@ -13,6 +13,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     ChannelsList: typeof import('./src/components/ChannelsList.vue')['default']
     EditMessagePopup: typeof import('./src/components/EditMessagePopup.vue')['default']
+    ColorPickerComponent: typeof import('./src/components/ColorPickerComponent.vue')['default']
     IconCommunity: typeof import('./src/components/icons/IconCommunity.vue')['default']
     IconDocumentation: typeof import('./src/components/icons/IconDocumentation.vue')['default']
     IconEcosystem: typeof import('./src/components/icons/IconEcosystem.vue')['default']
@@ -27,6 +28,9 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     UApp: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/App.vue')['default']
+    UButton: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Button.vue')['default']
+    UColorPicker: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/ColorPicker.vue')['default']
+    UPopover: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Popover.vue')['default']
     ValidationPopup: typeof import('./src/components/ValidationPopup.vue')['default']
   }
 }

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
-import type { Channel } from '@/types/interface'
 import ValidationPopup from './ValidationPopup.vue'
+import ColorPickerComponent from './ColorPickerComponent.vue'
+import type { Channel, ChannelTheme } from '@/types/interface'
 // import ColorPicker from 'primevue/colorpicker'
 
 const emit = defineEmits(['close', 'create', 'delete'])
@@ -9,6 +10,13 @@ const emit = defineEmits(['close', 'create', 'delete'])
 const showPopup = ref(false)
 const selectedChannel = ref<Channel | undefined>(undefined)
 
+const default_color = ref<ChannelTheme>({
+  primary_color: '#FF0000',
+  primary_color_dark: '#11C72C',
+  accent_color: '#0051FF',
+  text_color: '#000000',
+  accent_text_color: '#A4A4A4',
+})
 const props = defineProps<{
   modification?: boolean
   channel?: Channel
@@ -18,7 +26,11 @@ const formData = reactive({
   name: '',
   img: '',
   members: '',
-  primary_color:'',
+  primary_color: '',
+  primary_color_dark: '',
+  accent_color: '',
+  text_color: '',
+  accent_text_color: '',
 })
 
 if (props.modification && props.channel) {
@@ -27,14 +39,16 @@ if (props.modification && props.channel) {
 }
 
 const handleSubmit = () => {
-  console.log(formData);
-
   emit('create', formData)
 
   formData.name = ''
   formData.img = ''
   formData.members = ''
   formData.primary_color = ''
+  formData.primary_color_dark = ''
+  formData.accent_color = ''
+  formData.text_color = ''
+  formData.accent_text_color = ''
 }
 
 function popupCreate(channel: Channel) {
@@ -59,14 +73,47 @@ function popupCreate(channel: Channel) {
         </div>
       </div>
       <div class="form">
-        <Form @submit.prevent="handleSubmit">
-          <p>{{ props.modification ? 'Update channel' : 'Create a channel' }}</p>
-          <p>Channel name: <input type="text" required v-model="formData.name" /></p>
-          <p>Channel image: <input type="text" v-model="formData.img" /></p>
-          <p>Channel members: <input type="text" v-model="formData.members" /></p>
-          <!-- <ColorPicker name="color" v-model="formData.primary_color"/> -->
+        <form @submit.prevent="handleSubmit">
+          <p class="form-title">{{ props.modification ? 'Update channel' : 'Create a channel' }}</p>
+          <div class="form-field">
+            <p>
+              Channel name:
+              <input type="text" required v-model="formData.name" placeholder="My Channel" />
+            </p>
+            <p>
+              Channel image:
+              <input type="text" v-model="formData.img" placeholder="url.com/my-img.jpg" />
+            </p>
+            <p>
+              Channel members:
+              <input type="text" v-model="formData.members" placeholder="j.doe,j.roe..." />
+            </p>
+            <div class="color-picker" v-if="props.modification">
+              <ColorPickerComponent
+                name="Primary color"
+                :default="channel?.theme?.primary_color || default_color.primary_color"
+                v-model="formData.primary_color"
+              />
+              <ColorPickerComponent
+                name="Primary color dark"
+                :default="channel?.theme?.primary_color_dark || default_color.primary_color_dark"
+              />
+              <ColorPickerComponent
+                name="Accent color"
+                :default="channel?.theme?.accent_color || default_color.accent_color"
+              />
+              <ColorPickerComponent
+                name="Text color"
+                :default="channel?.theme?.text_color || default_color.text_color"
+              />
+              <ColorPickerComponent
+                name="Accent text color"
+                :default="channel?.theme?.accent_text_color || default_color.accent_text_color"
+              />
+            </div>
+          </div>
           <button type="submit">{{ props.modification ? 'Update' : 'Add item' }}</button>
-        </Form>
+        </form>
       </div>
       <div class="delete-button" v-if="props.modification && props.channel">
         <button
@@ -134,6 +181,47 @@ function popupCreate(channel: Channel) {
 }
 
 .form {
+  margin: 15px 0 0 30px;
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .form-title {
+      font-weight: 600;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      p {
+        display: flex;
+        flex-direction: column;
+      }
+
+      input[type='text'] {
+        width: 33%;
+        height: 30px;
+        border-radius: 5px 5px 0 0;
+        border-bottom: solid 2px var(--color-primary-dark);
+        background-color: #c6cef3;
+        padding: 3px;
+
+        &:focus {
+          outline: none;
+        }
+      }
+
+      .color-picker {
+        display: flex;
+        flex-direction: row;
+        gap: 2px;
+        flex-wrap: wrap;
+      }
+    }
+  }
+  
   button {
     position: absolute;
     bottom: 20px;
