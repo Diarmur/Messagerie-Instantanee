@@ -4,7 +4,13 @@ import { useStore } from '@/stores/store'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import 'vue3-snackbar/styles'
 import NewChannelPopup from './NewChannelPopup.vue'
-import type { Channel, NewChannel, UpdateChannel, ChannelFormData } from '@/types/interface'
+import type {
+  Channel,
+  NewChannel,
+  UpdateChannel,
+  ChannelFormData,
+  ChannelTheme,
+} from '@/types/interface'
 import { useSnackbar } from 'vue3-snackbar'
 const snackbar = useSnackbar()
 
@@ -90,6 +96,7 @@ const updateChannel = async (updatedChannel: UpdateChannel) => {
         body: JSON.stringify({
           name: updatedChannel.name,
           img: updatedChannel.img,
+          theme: updatedChannel.theme,
         }),
       },
     )
@@ -155,6 +162,7 @@ function popupCreate(modification: boolean, channel?: Channel) {
 }
 
 const handleClose = async (formData: ChannelFormData) => {
+  const theme = convertColorsToTheme(formData)
   try {
     if (isModification.value && selectedChannel.value) {
       await updateChannel({
@@ -162,6 +170,7 @@ const handleClose = async (formData: ChannelFormData) => {
         name: formData.name,
         img: formData.img,
         members: formData.members,
+        theme,
       })
     } else {
       await createChannel({
@@ -225,6 +234,16 @@ const addMembers = async (members: string, channelId: number) => {
     return false
   } finally {
     isLoading.value = false
+  }
+}
+
+const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
+  return {
+    primary_color: formData.primary_color,
+    primary_color_dark: formData.primary_color_dark,
+    accent_color: formData.accent_color,
+    text_color: formData.text_color,
+    accent_text_color: formData.accent_text_color,
   }
 }
 

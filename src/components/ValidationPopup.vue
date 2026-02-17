@@ -9,7 +9,7 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="blur">
+  <div class="bg-blur">
     <div class="popup-container">
       <div class="title-card">
         <span class="title">Confirm deletion</span>
@@ -29,7 +29,7 @@ const props = defineProps<{
 </template>
 
 <style scoped>
-.blur {
+.bg-blur {
   position: fixed;
   top: 0;
   left: 0;
