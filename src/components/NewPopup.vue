@@ -221,18 +221,6 @@ function triggerPopup(channel: Channel) {
       }
     }
   }
-
-  button {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    background-color: var(--color-primary-dark);
-    border-radius: 8px;
-    color: white;
-    border: none;
-    height: 30px;
-    width: 60px;
-  }
 }
 
 .delete-button {

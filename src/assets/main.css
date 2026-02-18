@@ -151,8 +151,9 @@ a,
     border-radius: 8px;
     color: white;
     border: none;
-    height: 30px;
-    width: 60px;
+    /* height: fit-content;
+    width: 60px; */
+    padding: 3px;
   }
 }
 

@@ -9,8 +9,7 @@ const routes = [
     path: '/messages',
     name: 'messages',
     component: MessagePageView,
-    meta: { requiresAuth: true }
-   
+    meta: { requiresAuth: true, title: 'YDiscord' },
   },
   {
     path: '/404',
@@ -26,9 +25,8 @@ const routes = [
     path: '/login',
     name: 'login',
     component: LoginPage,
-    meta: { requiresAuth: false }
-
-  }
+    meta: { requiresAuth: false, title: 'Login' },
+  },
 ]
 
 export const router = createRouter({
@@ -41,9 +39,13 @@ router.beforeEach((to, from, next) => {
   const authenticated = auth.token
   const requiresAuth = to.meta.requiresAuth
 
-  if (requiresAuth && !authenticated ) {
-    next('/login');  
+  if (requiresAuth && !authenticated) {
+    next('/login')
   } else {
-    next();
+    next()
   }
+})
+
+router.afterEach((to) => {
+  document.title = (to.meta.title as string) || 'Default Title'
 })

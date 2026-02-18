@@ -403,7 +403,7 @@ onMounted(async () => {
 }
 
 .send-btn:hover:not(:disabled) {
-  background-color: #5a5ba9;
+  background-color: var(--color-primary-dark);
 }
 
 .send-btn:disabled {
@@ -497,6 +497,6 @@ p {
 }
 
 .send-btn:hover {
-  background-color: #5a5b9a;
+  background-color: var(--color-primary-dark);
 }
 </style>

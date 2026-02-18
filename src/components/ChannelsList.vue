@@ -498,7 +498,7 @@ const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
       clip-path: circle();
 
       &:hover {
-        background-color: #64687e54;
+        background-color: #64667e54;
       }
     }
 
@@ -575,7 +575,7 @@ const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
     transition: background-color 0.2s ease;
 
     &:hover {
-      background-color: #5a5b9a;
+      background-color: var(--color-primary-dark);
     }
 
     &:active {
@@ -597,7 +597,7 @@ const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
     border-radius: 10px;
 
     &:hover {
-      background-color: #5d5f9a;
+      background-color: var(--color-primary-dark);
     }
 
     svg {
