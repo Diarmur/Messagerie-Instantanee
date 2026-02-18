@@ -5,6 +5,7 @@ const emit = defineEmits(['close', 'delete'])
 
 const props = defineProps<{
   channel?: Channel
+  type: string
 }>()
 </script>
 
@@ -16,7 +17,8 @@ const props = defineProps<{
       </div>
       <div class="confirmation-container">
         <div class="text">
-          Do you want to delete channel {{ props.channel?.name || 'placeholder' }} ?
+          Do you want to delete {{ props.type || 'placeholder' }}
+          {{ props.channel?.name || 'placeholder' }} ?
         </div>
 
         <div class="buttons">
@@ -39,7 +41,7 @@ const props = defineProps<{
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 6;
+  z-index: 3;
 }
 
 .popup-container {
@@ -47,7 +49,7 @@ const props = defineProps<{
   margin: 30px;
   width: 45rem;
   height: 10rem;
-  border: 5px var(--color-primary-dark) solid;
+  border: 5px var(--color-primary) solid;
   border-radius: 30px;
   background-color: var(--color-accent);
   overflow: hidden;
@@ -57,7 +59,7 @@ const props = defineProps<{
     align-items: center;
     justify-content: space-between;
     height: 20%;
-    background-color: var(--color-primary-dark);
+    background-color: var(--color-primary);
     padding: 0 1rem;
   }
 }
@@ -93,7 +95,7 @@ const props = defineProps<{
   }
 
   .cancel-button {
-    background-color: var(--color-primary-dark);
+    background-color: var(--color-primary);
     border-radius: 8px;
     color: white;
     border: none;

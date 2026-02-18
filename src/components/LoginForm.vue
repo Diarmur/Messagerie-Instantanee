@@ -30,7 +30,6 @@ const login = () =>
         localStorage.setItem('jwt', data.token)
         store.setToken(data.token)
         GetConnectedUser()
-        console.log(store.token)
         router.push('/messages')
       }
     })

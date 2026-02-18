@@ -51,7 +51,7 @@ const handleSubmit = () => {
   formData.accent_text_color = ''
 }
 
-function popupCreate(channel: Channel) {
+function triggerPopup(channel: Channel) {
   showPopup.value = !showPopup.value
   selectedChannel.value = channel
 }
@@ -61,8 +61,9 @@ function popupCreate(channel: Channel) {
   <div class="bg-blur">
     <ValidationPopup
       v-if="showPopup"
+      type="channel"
       :channel="channel"
-      @close="popupCreate"
+      @close="triggerPopup"
       @delete="emit('delete')"
     />
     <div class="popup-container">
@@ -97,18 +98,17 @@ function popupCreate(channel: Channel) {
               <ColorPickerComponent
                 name="Primary color dark"
                 :default="channel?.theme?.primary_color_dark || default_color.primary_color_dark"
+                v-model="formData.primary_color_dark"
               />
               <ColorPickerComponent
                 name="Accent color"
                 :default="channel?.theme?.accent_color || default_color.accent_color"
+                v-model="formData.accent_color"
               />
               <ColorPickerComponent
                 name="Text color"
                 :default="channel?.theme?.text_color || default_color.text_color"
-              />
-              <ColorPickerComponent
-                name="Accent text color"
-                :default="channel?.theme?.accent_text_color || default_color.accent_text_color"
+                v-model="formData.text_color"
               />
             </div>
           </div>
@@ -118,9 +118,9 @@ function popupCreate(channel: Channel) {
       <div class="delete-button" v-if="props.modification && props.channel">
         <button
           type="submit"
-          v-on:click="popupCreate(props.channel)"
+          v-on:click="triggerPopup(props.channel)"
           @delete="emit('delete')"
-          @close="popupCreate"
+          @close="triggerPopup"
         >
           Delete
         </button>
@@ -140,7 +140,7 @@ function popupCreate(channel: Channel) {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 3;
+  z-index: 2;
 }
 .popup-container {
   position: relative;
@@ -204,8 +204,8 @@ function popupCreate(channel: Channel) {
         width: 33%;
         height: 30px;
         border-radius: 5px 5px 0 0;
-        border-bottom: solid 2px var(--color-primary-dark);
-        background-color: #c6cef3;
+        border-bottom: solid 2px var(--color-primary);
+        background-color: #var(--color-accent-color);
         padding: 3px;
 
         &:focus {
@@ -221,7 +221,7 @@ function popupCreate(channel: Channel) {
       }
     }
   }
-  
+
   button {
     position: absolute;
     bottom: 20px;

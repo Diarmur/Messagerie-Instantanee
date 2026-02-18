@@ -235,7 +235,7 @@ onMounted(async () => {
   flex-direction: column;
   height: 95vh;
   width: 100%;
-  border: 3px solid #6b6cb2;
+  border: 3px solid var(--color-primary);
   border-radius: 15px;
   background-color: #f5f5f7;
   overflow: hidden;
@@ -249,9 +249,9 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   padding: 1rem 1.5rem;
-  background-color: #6b6cb2;
+  background-color: var(--color-primary);
   color: white;
-  border-bottom: 2px solid #5a5ba9;
+  border-bottom: 2px solid var(--color-primary);
 }
 
 .channel-info {
@@ -315,7 +315,7 @@ onMounted(async () => {
 }
 
 .author {
-  color: #6b6cb2;
+  color: var(--color-primary);
   font-weight: 600;
 }
 
@@ -379,7 +379,7 @@ onMounted(async () => {
 }
 
 .form-input:focus {
-  border-color: #6b6cb2;
+  border-color: var(--color-primary);
 }
 
 .type-input {
@@ -391,7 +391,7 @@ onMounted(async () => {
 }
 
 .send-btn {
-  background-color: #6b6cb2;
+  background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: 8px;
@@ -416,7 +416,7 @@ onMounted(async () => {
   border-radius: 12px;
   padding: 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #6b6cb2;
+  border-left: 4px solid var(--color-primary);
 }
 
 .author,
@@ -426,7 +426,7 @@ p {
 }
 
 .message-type {
-  background-color: #6b6cb2;
+  background-color: var(--color-primary);
   color: white;
   padding: 2px 8px;
   border-radius: 12px;
@@ -481,13 +481,13 @@ p {
 
 .form-input:focus {
   outline: none;
-  border-color: #6b6cb2;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 2px rgba(107, 108, 178, 0.2);
 }
 
 .send-btn {
   padding: 10px 20px;
-  background-color: #6b6cb2;
+  background-color: var(--color-primary);
   color: white;
   border: none;
   border-radius: 8px;
@@ -498,22 +498,5 @@ p {
 
 .send-btn:hover {
   background-color: #5a5b9a;
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
 }
 </style>

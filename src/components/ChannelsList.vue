@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useStore } from '@/stores/store'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import 'vue3-snackbar/styles'
-import NewChannelPopup from './NewChannelPopup.vue'
+import NewChannelPopup from './NewPopup.vue'
 import type {
   Channel,
   NewChannel,
@@ -58,6 +58,19 @@ const getChannels = async () => {
 
 function getIdCard(channel: Channel) {
   store.setSelectedChannel(channel)
+  changeColor(channel)
+}
+
+const changeColor = (channel: Channel) => {
+  const root = document.documentElement
+  if (channel.theme) {
+    console.log(channel.theme)
+
+    root.style.setProperty('--color-primary', channel.theme?.primary_color)
+    root.style.setProperty('--color-primary-dark', channel.theme?.primary_color_dark)
+    root.style.setProperty('--color-accent', channel.theme?.accent_color)
+    root.style.setProperty('--color-text', channel.theme?.text_color)
+  }
 }
 
 const createChannel = async (newChannel: NewChannel) => {
@@ -162,13 +175,15 @@ function switchSize() {
   container.value?.classList.toggle('big')
 }
 
-function popupCreate(modification: boolean, channel?: Channel) {
+function triggerPopup(modification: boolean, channel?: Channel) {
   showPopup.value = !showPopup.value
   selectedChannel.value = channel
   isModification.value = modification
 }
 
 const handleClose = async (formData: ChannelFormData) => {
+  console.log(formData);
+
   const theme = convertColorsToTheme(formData)
   try {
     if (isModification.value && selectedChannel.value) {
@@ -179,6 +194,7 @@ const handleClose = async (formData: ChannelFormData) => {
         members: formData.members,
         theme,
       })
+      changeColor({ ...selectedChannel.value, theme })
     } else {
       await createChannel({
         name: formData.name,
@@ -243,6 +259,8 @@ const addMembers = async (members: string, channelId: number) => {
 }
 
 const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
+  console.log(formData);
+
   return {
     primary_color: formData.primary_color,
     primary_color_dark: formData.primary_color_dark,
@@ -260,7 +278,7 @@ const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
       :modification="isModification"
       :channel="selectedChannel"
       @create="handleClose"
-      @close="popupCreate"
+      @close="triggerPopup"
       @delete="deleteChannel"
     />
     <div class="messages-header title-channel">
@@ -284,7 +302,6 @@ const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
         v-for="channel in channels"
         :key="channel.id"
         class="channel-card"
-
         @click="getIdCard(channel)"
       >
         <div class="channel-content">
@@ -298,26 +315,18 @@ const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
 
           <div class="channel-info">
             <div class="channel-data">
-              <span
-                class="channel-name"
-
-              >
+              <span class="channel-name">
                 {{ channel.name }}
               </span>
               <div class="channel-meta">
                 <span class="channel-creator">par {{ channel.creator }}</span>
-                <span
-                  class="user-count"
-
-                >
-                  {{ channel.users.length }} 👤
-                </span>
+                <span class="user-count"> {{ channel.users.length }} 👤 </span>
               </div>
             </div>
             <div
               class="channel-option"
               v-if="channel.creator == store.username"
-              v-on:click="popupCreate(true, channel)"
+              v-on:click="triggerPopup(true, channel)"
             >
               <font-awesome-icon icon="ellipsis-v" />
             </div>
@@ -325,7 +334,7 @@ const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
         </div>
       </div>
     </div>
-    <div class="pop-up" v-on:click="popupCreate(false)"><font-awesome-icon icon="plus" /></div>
+    <div class="pop-up" v-on:click="triggerPopup(false)"><font-awesome-icon icon="plus" /></div>
   </div>
 </template>
 
@@ -336,7 +345,7 @@ const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
   flex-direction: column;
   width: 25rem;
   height: 90vh;
-  border: 3px var(--color-primary-dark) solid;
+  border: 3px var(--color-primary) solid;
   border-radius: 15px;
   background-color: var(--color-accent);
   overflow: hidden;
@@ -345,7 +354,7 @@ const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
   transition: width 1s ease;
 
   &.big {
-    width: 52rem;
+    width: 80rem;
 
     svg.arrow {
       transform: rotate(-180deg);
@@ -403,9 +412,9 @@ const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
     display: flex;
     align-items: center;
     padding: 1rem 1.5rem;
-    background-color: #6b6cb2;
+    background-color: var(--color-primary);
     color: white;
-    border-bottom: 2px solid #5a5ba9;
+    border-bottom: 2px solid var(--color-primary);
   }
 
   .title-channel {
@@ -522,7 +531,7 @@ const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
       font-size: 0.7rem;
       padding: 2px 8px;
       border-radius: 12px;
-      background-color: #486094;
+      background-color: var(--color-primary-dark);
       color: white;
       font-weight: 600;
       white-space: nowrap;
@@ -547,16 +556,16 @@ const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
   }
 
   .loading-message {
-    color: #486094;
+    color: var(--color-primary-dark);
   }
 
   .empty-message {
-    color: #486094;
+    color: var(--color-primary-dark);
   }
 
   .retry-button {
     padding: 8px 16px;
-    background-color: var(--color-primary-dark);
+    background-color: var(--color-primary);
     color: white;
     border: none;
     border-radius: 8px;
@@ -580,12 +589,11 @@ const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
     align-self: center;
     align-items: center;
     justify-content: center;
-    z-index: 2;
     width: 50px;
     height: 50px;
     bottom: 10px;
     right: 10px;
-    background-color: var(--color-primary-dark);
+    background-color: var(--color-primary);
     border-radius: 10px;
 
     &:hover {

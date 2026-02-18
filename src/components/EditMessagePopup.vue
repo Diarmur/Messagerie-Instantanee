@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { reactive } from 'vue'
 
-const emit = defineEmits(['close','create'])
+const emit = defineEmits(['close', 'create'])
 
 export interface FormDataMessage {
-    editType : string,
-    editValue : string
+  editType: string
+  editValue: string
 }
-const formData = reactive<FormDataMessage>({editType : '', editValue : ''})
+const formData = reactive<FormDataMessage>({ editType: '', editValue: '' })
 
 const handleSubmit = () => {
-
   emit('create', formData)
 
   formData.editType = ''
@@ -23,18 +22,23 @@ const handleSubmit = () => {
     <div class="popup-container">
       <div class="title-card">
         <span class="title">Edit Message</span>
-        <span class="dot" @click.stop="emit('close')"></span>
+
+        <div class="button-container">
+          <font-awesome-icon icon="x" class="x-cross" @click.stop="emit('close')" />
+        </div>
       </div>
-      <div class="create-form">
+      <div class="form">
         <form @submit.prevent="handleSubmit">
-          <p>Edit a channel</p>
-          <p>Message type: </p>
-          <select v-model="formData.editType" required>
-            <option disabled value="">Select Type</option>
-            <option value="Text">TEXT</option>
-            <option value="Image">IMAGE</option>
-          </select>
-          <p>Message Value: <input type="text" required v-model="formData.editValue"/></p>
+          <p class="form-title">Edit a channel</p>
+          <div class="form-field">
+            <p>Message type:</p>
+            <select v-model="formData.editType" required>
+              <option disabled value="">Select Type</option>
+              <option value="Text">TEXT</option>
+              <option value="Image">IMAGE</option>
+            </select>
+            <p>Message Value: <input type="text" required v-model="formData.editValue" /></p>
+          </div>
 
           <button type="submit">Edit</button>
         </form>
@@ -54,32 +58,16 @@ const handleSubmit = () => {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 2;
 }
 .popup-container {
-  margin: 30px;
-  width: 40rem;
-  height: 25rem;
-  border: 5px #6b6cb2 solid;
-  border-radius: 30px;
-  background-color: #a0a9d6;
-  overflow: hidden;
-
   .title-card {
     display: flex;
     align-items: center;
     justify-content: space-between;
     height: 10%;
-    background-color: #6b6cb2;
+    background-color: var(--color-primary);
     padding: 0 1rem;
   }
-}
-
-.dot {
-  height: 40px;
-  width: 40px;
-  min-width: 40px;
-  background-color: #7e7b8e;
-  border-radius: 50%;
-  display: inline-block;
 }
 </style>

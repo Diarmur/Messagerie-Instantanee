@@ -1,15 +1,15 @@
 @import './base.css';
-@import "tailwindcss";
-@import "@nuxt/ui";
+@import 'tailwindcss';
+@import '@nuxt/ui';
 
 :root {
-  --color-primary: #e91e63;
-  --color-primary-dark: #6b6cb2;
+  --color-primary: #6b6cb2;
+  --color-primary-dark: #486094;
   --color-accent: #a0a9d6;
   --color-text: #212121;
   --color-accent-text: #ffffff;
   --color-deletion: #e32727;
-  --color-hover-base:#2233571f;
+  --color-hover-base: #2233571f;
 }
 
 html,
@@ -66,10 +66,103 @@ a,
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #486094;
+  background: var(--color-primary-dark);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #354669;
+}
+
+.button-container {
+  height: 27px;
+  width: 27px;
+  clip-path: circle();
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .x-cross {
+    height: 20px;
+    width: 20px;
+    min-width: 20px;
+  }
+  &:hover {
+    background-color: var(--color-hover-base);
+  }
+}
+
+.form {
+  margin: 15px 0 0 30px;
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .form-title {
+      font-weight: 600;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      p {
+        display: flex;
+        flex-direction: column;
+      }
+
+      select {
+        width: 33%;
+        height: 30px;
+        border-radius: 5px 5px 0 0;
+        border-bottom: solid 2px var(--color-primary);
+        background-color: #var(--color-accent-color);
+        padding: 3px;
+      }
+
+      input[type='text'] {
+        width: 33%;
+        height: 30px;
+        border-radius: 5px 5px 0 0;
+        border-bottom: solid 2px var(--color-primary);
+        background-color: #var(--color-accent-color);
+        padding: 3px;
+
+        &:focus {
+          outline: none;
+        }
+      }
+
+      .color-picker {
+        display: flex;
+        flex-direction: row;
+        gap: 2px;
+        flex-wrap: wrap;
+      }
+    }
+  }
+
+  button[type='submit'] {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background-color: var(--color-primary);
+    border-radius: 8px;
+    color: white;
+    border: none;
+    height: 30px;
+    width: 60px;
+  }
+}
+
+.popup-container {
+  position: relative;
+  margin: 30px;
+  width: 40rem;
+  height: 25rem;
+  border: 5px var(--color-primary) solid;
+  border-radius: 30px;
+  background-color: var(--color-accent);
+  overflow: hidden;
 }

@@ -25,6 +25,7 @@ declare module 'vue' {
     MessageList: typeof import('./src/components/MessageList.vue')['default']
     MessagePageView: typeof import('./src/components/pages/MessagePageView.vue')['default']
     NewChannelPopup: typeof import('./src/components/NewChannelPopup.vue')['default']
+    NewPopup: typeof import('./src/components/NewPopup.vue')['default']
     NotFoundView: typeof import('./src/components/pages/NotFoundView.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
