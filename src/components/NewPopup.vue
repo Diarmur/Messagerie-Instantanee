@@ -205,7 +205,7 @@ function triggerPopup(channel: Channel) {
         height: 30px;
         border-radius: 5px 5px 0 0;
         border-bottom: solid 2px var(--color-primary);
-        background-color: #var(--color-accent-color);
+        background-color: var(--color-accent-color);
         padding: 3px;
 
         &:focus {
