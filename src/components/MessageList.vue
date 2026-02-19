@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useStore } from '@/stores/store'
-import { ref, onMounted, watch, computed, nextTick } from 'vue'
+import { ref, onMounted, watch, computed, nextTick, onBeforeUnmount } from 'vue'
 import EditMessagePopup from './EditMessagePopup.vue'
 import type { FormDataMessage } from './EditMessagePopup.vue'
 import type { Message } from '@/types/interface'
@@ -17,8 +17,54 @@ const value = ref('')
 const messages = ref<Message[]>([])
 const messages_list = ref<HTMLDivElement | null>(null)
 
+const wsConnectionEstablished = ref(false)
+let ws: WebSocket | null = null
+
 const loading = ref(false)
 const error = ref<string | null>(null)
+
+const connectWebSocket = () => {
+  if (!channel_id.value || !store.token) {
+    return
+  }
+
+  closeWebSocket()
+
+  ws = new WebSocket(`wss://edu.tardigrade.land/msg/ws/channel/${channel_id.value}/token/${store.token}`);
+
+  ws.onopen = () => {
+    console.log('WebSocket connecté')
+    wsConnectionEstablished.value = true
+  }
+
+  ws.onmessage = (e) => {
+    try {
+      const newMessage: Message = JSON.parse(e.data)
+      console.log('Nouveau message reçu:', newMessage)
+      messages.value.push(newMessage)
+    } catch (err) {
+      console.error('Erreur lors du parsing du message WebSocket:', err)
+    }
+  }
+
+  ws.onerror = (error) => {
+    console.error('Erreur WebSocket:', error)
+    wsConnectionEstablished.value = false
+  }
+
+  ws.onclose = () => {
+    console.log('WebSocket déconnecté')
+    wsConnectionEstablished.value = false
+  }
+}
+
+const closeWebSocket = () => {
+  if (ws) {
+    ws.close()
+    ws = null
+    wsConnectionEstablished.value = false
+  }
+}
 
 const createMessage = async () => {
   if (!channel_id.value) {
@@ -51,9 +97,8 @@ const createMessage = async () => {
 
     await response.json()
 
-    type.value = ''
+    type.value = 'Text'
     value.value = ''
-    await getMessages()
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Erreur lors de la création du message'
     console.error('Error:', err)
@@ -157,6 +202,10 @@ const scrollToBottom = async () => {
 watch(channel_id, (newChannelId) => {
   if (newChannelId) {
     getMessages()
+    connectWebSocket()
+  } else {
+    closeWebSocket()
+    messages.value = []
   }
 })
 
@@ -167,13 +216,18 @@ watch(messages, () => {
 onMounted(async () => {
   if (channel_id.value) {
     getMessages()
+    connectWebSocket()
   }
 scrollToBottom()
+})
+
+onBeforeUnmount(() => {
+  closeWebSocket()
 })
 </script>
 
 <template>
-  <EditMessagePopup v-if="showPopup" @create="handleClose" @close="popupEdit" />
+  <EditMessagePopup v-if="showPopup" @edit="handleClose" @close="popupEdit" />
   <div class="messages-container">
     <div v-if="selectedChannel" class="messages-header">
       <div class="channel-info">
@@ -226,7 +280,7 @@ scrollToBottom()
         <div class="form-group">
           <select v-model="type" required>
             <option disabled value="">Select Type</option>
-            <option value="Text">TEXT</option>
+            <option selected="true" value="Text">TEXT</option>
             <option value="Image">IMAGE</option>
           </select>
           <p>{{ type }}</p>

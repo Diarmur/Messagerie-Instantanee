@@ -6,7 +6,7 @@ import { useStore } from './stores/store'
 
 const routes = [
   {
-    path: '/messages',
+    path: '/',
     name: 'messages',
     component: MessagePageView,
     meta: { requiresAuth: true, title: 'YDiscord' },
