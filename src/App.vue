@@ -29,7 +29,6 @@ const refreshToken = async () => {
       const data = await response.json()
       if (data.token) {
         console.log(data)
-        console.log(interval)
         store.setToken(data.token)
         cookies?.set('token', data.token)
         localStorage.setItem('jwt', data.token)
@@ -77,6 +76,7 @@ onMounted(() => {
     store.setToken(token)
 
     if (token && !interval) {
+    //rafraichi le token chaque 2h
     interval = window.setInterval(refreshToken, 2 * 60 * 60 * 1000)
   }
 
