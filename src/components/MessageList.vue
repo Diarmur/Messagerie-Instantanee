@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useStore } from '@/stores/store'
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, watch, computed, nextTick } from 'vue'
 import EditMessagePopup from './EditMessagePopup.vue'
 import type { FormDataMessage } from './EditMessagePopup.vue'
 import type { Message } from '@/types/interface'
@@ -15,6 +15,7 @@ const showPopup = ref(false)
 const type = ref('')
 const value = ref('')
 const messages = ref<Message[]>([])
+const messages_list = ref<HTMLDivElement | null>(null)
 
 const loading = ref(false)
 const error = ref<string | null>(null)
@@ -143,16 +144,31 @@ const handleClose = (formData: FormDataMessage) => {
   showPopup.value = false
 }
 
+const scrollToBottom = async () => {
+  await nextTick()
+  const el = messages_list.value
+  console.log(el);
+
+  if (el) {
+    el.scrollTop = el.scrollHeight
+  }
+}
+
 watch(channel_id, (newChannelId) => {
   if (newChannelId) {
     getMessages()
   }
 })
 
+watch(messages, () => {
+  scrollToBottom()
+})
+
 onMounted(async () => {
   if (channel_id.value) {
     getMessages()
   }
+scrollToBottom()
 })
 </script>
 
@@ -172,7 +188,7 @@ onMounted(async () => {
     <div v-if="loading" class="loading">
       <p>Loading...</p>
     </div>
-    <div v-else-if="messages.length > 0" class="messages-list">
+    <div v-else-if="messages.length > 0" class="messages-list" ref="messages_list">
       <div v-for="(message, index) of messages" :key="index" class="message-item">
         <div class="message-header">
           <strong class="author">{{ message.author }}</strong>

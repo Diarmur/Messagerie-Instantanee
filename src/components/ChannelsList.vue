@@ -602,6 +602,7 @@ const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
 
     svg {
       height: 80%;
+      color: var(--color-accent);
     }
   }
 }
