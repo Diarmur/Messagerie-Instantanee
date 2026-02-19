@@ -1,14 +1,21 @@
 <script setup lang="ts">
+import type { Message } from '@/types/interface';
 import { reactive } from 'vue'
 
 const emit = defineEmits(['close','edit'])
+
+const props = defineProps<{
+  message: Message
+}>()
 
 export interface FormDataMessage {
   editType: string
   editValue: string
 }
-const formData = reactive<FormDataMessage>({ editType: '', editValue: '' })
-
+const formData = reactive<FormDataMessage>({ 
+  editType: props.message.content.type, 
+  editValue: props.message.content.value 
+})
 const handleSubmit = () => {
   console.log(formData)
 
@@ -31,11 +38,10 @@ const handleSubmit = () => {
       </div>
       <div class="form">
         <form @submit.prevent="handleSubmit">
-          <p class="form-title">Edit a channel</p>
+          <p class="form-title">Edit message</p>
           <div class="form-field">
             <p>Message type:</p>
             <select v-model="formData.editType" required>
-              <option disabled value="">Select Type</option>
               <option value="Text">TEXT</option>
               <option value="Image">IMAGE</option>
             </select>

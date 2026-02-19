@@ -227,8 +227,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <EditMessagePopup v-if="showPopup" @edit="handleClose" @close="popupEdit" />
-  <div class="messages-container">
+<EditMessagePopup v-if="showPopup && selectedMessage" :message="selectedMessage" @edit="handleClose" @close="popupEdit" 
+/>  <div class="messages-container">
     <div v-if="selectedChannel" class="messages-header">
       <div class="channel-info">
         <h2 class="channel-name">{{ selectedChannel.name }}</h2>
