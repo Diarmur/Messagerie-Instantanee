@@ -17,8 +17,6 @@ const formData = reactive<FormDataMessage>({
   editValue: props.message.content.value 
 })
 const handleSubmit = () => {
-  console.log(formData)
-
   emit('edit', formData)
 
   formData.editType = ''
@@ -76,6 +74,10 @@ const handleSubmit = () => {
     height: 10%;
     background-color: var(--color-primary);
     padding: 0 1rem;
+  }
+
+  .title-card{
+    color: var(--color-accent);
   }
 }
 </style>
