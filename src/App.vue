@@ -28,11 +28,9 @@ const refreshToken = async () => {
     if (response.ok) {
       const data = await response.json()
       if (data.token) {
-        console.log(data)
         store.setToken(data.token)
         cookies?.set('token', data.token)
         localStorage.setItem('jwt', data.token)
-        console.log('Token refreshed successfully')
       }
     } else {
   console.error('Failed to refresh token')

@@ -11,10 +11,10 @@ const showPopup = ref(false)
 const selectedChannel = ref<Channel | undefined>(undefined)
 
 const default_color = ref<ChannelTheme>({
-  primary_color: '#FF0000',
-  primary_color_dark: '#11C72C',
-  accent_color: '#0051FF',
-  text_color: '#000000',
+  primary_color: '#222222',
+  primary_color_dark: '#1F2021',
+  accent_color: '#D2D2D2',
+  text_color: '#1B1B1B',
   accent_text_color: '#A4A4A4',
 })
 const props = defineProps<{
@@ -79,7 +79,7 @@ function triggerPopup(channel: Channel) {
           <div class="form-field">
             <p>
               Channel name:
-              <input type="text" required v-model="formData.name" placeholder="My Channel" />
+              <input type="text" required v-model="formData.name" placeholder="My Channel" autofocus/>
             </p>
             <p>
               Channel image:
@@ -147,7 +147,7 @@ function triggerPopup(channel: Channel) {
   margin: 30px;
   width: 40rem;
   height: 25rem;
-  border: 5px var(--color-primary-dark) solid;
+  border: 5px var(--color-primary) solid;
   border-radius: 30px;
   background-color: var(--color-accent);
   overflow: hidden;
@@ -157,8 +157,12 @@ function triggerPopup(channel: Channel) {
     align-items: center;
     justify-content: space-between;
     height: 10%;
-    background-color: var(--color-primary-dark);
+    background-color: var(--color-primary);
     padding: 0 1rem;
+
+    span{
+      color: var(--color-accent);
+    }
 
     .button-container {
       height: 27px;
@@ -167,15 +171,6 @@ function triggerPopup(channel: Channel) {
       display: flex;
       justify-content: center;
       align-items: center;
-
-      .x-cross {
-        height: 20px;
-        width: 20px;
-        min-width: 20px;
-      }
-      &:hover {
-        background-color: var(--color-hover-base);
-      }
     }
   }
 }

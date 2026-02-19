@@ -33,14 +33,12 @@ const connectWebSocket = () => {
   ws = new WebSocket(`wss://edu.tardigrade.land/msg/ws/channel/${channel_id.value}/token/${store.token}`);
 
   ws.onopen = () => {
-    console.log('WebSocket connecté')
     wsConnectionEstablished.value = true
   }
 
   ws.onmessage = (e) => {
     try {
       const newMessage: Message = JSON.parse(e.data)
-      console.log('Nouveau message reçu:', newMessage)
       messages.value.push(newMessage)
     } catch (err) {
       console.error('Erreur lors du parsing du message WebSocket:', err)
@@ -53,7 +51,6 @@ const connectWebSocket = () => {
   }
 
   ws.onclose = () => {
-    console.log('WebSocket déconnecté')
     wsConnectionEstablished.value = false
   }
 }
@@ -192,7 +189,6 @@ const handleClose = (formData: FormDataMessage) => {
 const scrollToBottom = async () => {
   await nextTick()
   const el = messages_list.value
-  console.log(el);
 
   if (el) {
     el.scrollTop = el.scrollHeight
@@ -280,7 +276,7 @@ onBeforeUnmount(() => {
         <div class="form-group">
           <select v-model="type" required>
             <option value="Text" >TEXT</option>
-            <option value="Image">IMAGE</option>           
+            <option value="Image">IMAGE</option>
           </select>
           <p>{{ type }}</p>
 

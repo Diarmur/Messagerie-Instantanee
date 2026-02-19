@@ -53,6 +53,9 @@ const banUser = async (username: string) => {
     if (!response.ok) {
       throw new Error(`Failed to delete user ${username}`)
     }
+    if (username == store.username) {
+      store.selectedChannel = null
+    }
     snackbar.add({
       type: 'success',
       text: 'User deleted',
@@ -116,7 +119,7 @@ watch(
         <div class="member-option">
           <font-awesome-icon v-if="store.selectedChannel.creator == member.username" icon="crown" />
           <font-awesome-icon
-            v-else-if="store.selectedChannel.creator == store.username"
+            v-else-if="store.selectedChannel.creator == store.username || store.username == member.username"
             v-on:click="triggerPopup(member.username, false)"
             icon="ellipsis-v"
           />
@@ -143,7 +146,7 @@ watch(
   transform-origin: left;
   transition: width 1s ease;
 
-  .member-list {
+  .members-list {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
