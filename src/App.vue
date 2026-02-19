@@ -77,7 +77,7 @@ onMounted(() => {
     store.setToken(token)
 
     if (token && !interval) {
-    interval = window.setInterval(refreshToken, 10 * 1000)
+    interval = window.setInterval(refreshToken, 2 * 60 * 60 * 1000)
   }
 
   }
