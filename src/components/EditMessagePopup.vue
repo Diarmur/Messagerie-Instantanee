@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 
-const emit = defineEmits(['close','create'])
+const emit = defineEmits(['close','edit'])
 
 export interface FormDataMessage {
     editType : string,
@@ -12,7 +12,7 @@ const formData = reactive<FormDataMessage>({editType : '', editValue : ''})
 const handleSubmit = () => {
   console.log(formData)
 
-  emit('create', formData)
+  emit('edit', formData)
 
   formData.editType = ''
   formData.editValue = ''

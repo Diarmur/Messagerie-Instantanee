@@ -17,6 +17,7 @@ let ws: WebSocket | null = null
 const showPopup = ref(false)
 
 const type = ref('Text')
+
 const value = ref('')
 const messages = ref<Message[]>([])
 
@@ -98,9 +99,8 @@ const createMessage = async () => {
     const data = await response.json()
     console.log('Message créé:', data)
 
-    type.value = ''
+    type.value = 'Text'
     value.value = ''
-    //getMessages()
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Erreur lors de la création du message'
     console.error('Error:', err)
@@ -220,7 +220,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <EditMessagePopup v-if="showPopup" @create="handleClose" @close="popupEdit" />
+  <EditMessagePopup v-if="showPopup" @edit="handleClose" @close="popupEdit" />
   <div class="messages-container">
     <div v-if="selectedChannel" class="messages-header">
       <div class="channel-info">
@@ -267,7 +267,7 @@ onBeforeUnmount(() => {
       <form @submit.prevent="createMessage" class="message-form">
         <div class="form-group">
           <select v-model="type" required>
-            <option value="Text">TEXT</option>
+            <option value="Text" >TEXT</option>
             <option value="Image">IMAGE</option>           
           </select>
           <p> {{ type }}</p>

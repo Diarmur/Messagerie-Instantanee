@@ -34,10 +34,8 @@ const login = () => fetch("https://edu.tardigrade.land/msg/login",{
       username: username.value
     })
     console.log(store.token)
-    router.push('/messages')
+    router.push('/')
   }
-
-  
 })
 .catch(error => console.error('Error:', error))
 
