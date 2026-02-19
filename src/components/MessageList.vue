@@ -12,7 +12,7 @@ const selectedChannel = computed(() => store.selectedChannel)
 const batch_offset = ref(0)
 const showPopup = ref(false)
 
-const type = ref('')
+const type = ref('Text')
 const value = ref('')
 const messages = ref<Message[]>([])
 const messages_list = ref<HTMLDivElement | null>(null)
@@ -279,9 +279,8 @@ onBeforeUnmount(() => {
       <form @submit.prevent="createMessage" class="message-form">
         <div class="form-group">
           <select v-model="type" required>
-            <option disabled value="">Select Type</option>
-            <option selected="true" value="Text">TEXT</option>
-            <option value="Image">IMAGE</option>
+            <option value="Text" >TEXT</option>
+            <option value="Image">IMAGE</option>           
           </select>
           <p>{{ type }}</p>
 
