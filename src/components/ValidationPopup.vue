@@ -17,8 +17,7 @@ const props = defineProps<{
       </div>
       <div class="confirmation-container">
         <div class="text">
-          Do you want to delete {{ props.type || 'placeholder' }}
-          {{ props.channel?.name || 'placeholder' }} ?
+          Do you want to delete {{ props.type || 'placeholder' }} ?
         </div>
 
         <div class="buttons">

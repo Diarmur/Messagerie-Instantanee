@@ -10,8 +10,6 @@ export interface FormDataMessage {
 const formData = reactive<FormDataMessage>({ editType: '', editValue: '' })
 
 const handleSubmit = () => {
-  console.log(formData)
-
   emit('edit', formData)
 
   formData.editType = ''
@@ -70,6 +68,10 @@ const handleSubmit = () => {
     height: 10%;
     background-color: var(--color-primary);
     padding: 0 1rem;
+  }
+
+  .title-card{
+    color: var(--color-accent);
   }
 }
 </style>

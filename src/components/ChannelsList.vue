@@ -64,8 +64,6 @@ function getIdCard(channel: Channel) {
 const changeColor = (channel: Channel) => {
   const root = document.documentElement
   if (channel.theme) {
-    console.log(channel.theme)
-
     root.style.setProperty('--color-primary', channel.theme?.primary_color)
     root.style.setProperty('--color-primary-dark', channel.theme?.primary_color_dark)
     root.style.setProperty('--color-accent', channel.theme?.accent_color)
@@ -182,8 +180,6 @@ function triggerPopup(modification: boolean, channel?: Channel) {
 }
 
 const handleClose = async (formData: ChannelFormData) => {
-  console.log(formData);
-
   const theme = convertColorsToTheme(formData)
   try {
     if (isModification.value && selectedChannel.value) {
@@ -241,6 +237,10 @@ const addMembers = async (members: string, channelId: number) => {
         } else {
           throw new Error(`Failed to add user ${user}`)
         }
+      } else {
+        if (store.selectedChannel && !store.selectedChannel.users.includes(user)) {
+          store.selectedChannel.users.push(user)
+        }
       }
 
       return { user, success: true, data }
@@ -259,8 +259,6 @@ const addMembers = async (members: string, channelId: number) => {
 }
 
 const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
-  console.log(formData);
-
   return {
     primary_color: formData.primary_color,
     primary_color_dark: formData.primary_color_dark,
@@ -509,7 +507,6 @@ const convertColorsToTheme = (formData: ChannelFormData): ChannelTheme => {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: wrap;
-      max-width: 75%;
     }
 
     .channel-meta {
