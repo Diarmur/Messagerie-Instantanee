@@ -247,7 +247,6 @@ onBeforeUnmount(() => {
         <div class="message-header">
           <strong class="author">{{ message.author }}</strong>
           <span class="message-type">{{ message.content.type }}</span>
-          <!-- <span>{{ message.timestamp }}</span> -->
           <div
             v-show="selectedChannel?.creator === store.username"
             class="pop-up"
